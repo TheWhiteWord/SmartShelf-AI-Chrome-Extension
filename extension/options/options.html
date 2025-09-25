@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShelf - Settings</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="options-container">
+        <header class="options-header">
+            <img src="../icons/icon48.png" alt="SmartShelf" class="logo">
+            <h1>SmartShelf Settings</h1>
+            <p>Configure your AI-powered knowledge management system</p>
+        </header>
+        
+        <nav class="settings-nav">
+            <button class="nav-tab active" data-tab="general">General</button>
+            <button class="nav-tab" data-tab="ai">AI Processing</button>
+            <button class="nav-tab" data-tab="storage">Storage</button>
+            <button class="nav-tab" data-tab="api">API Gateway</button>
+            <button class="nav-tab" data-tab="backup">Backup & Export</button>
+        </nav>
+        
+        <main class="settings-content">
+            <!-- General Settings -->
+            <section class="settings-section" id="general-section">
+                <h2>General Settings</h2>
+                
+                <div class="setting-group">
+                    <label for="default-categories">Default Categories</label>
+                    <textarea id="default-categories" placeholder="Enter default categories, one per line"></textarea>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="interface-theme">Interface Theme</label>
+                    <select id="interface-theme">
+                        <option value="auto">Auto (System)</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="keyboard-shortcuts">
+                        Enable keyboard shortcuts
+                    </label>
+                </div>
+            </section>
+            
+            <!-- AI Processing Settings -->
+            <section class="settings-section hidden" id="ai-section">
+                <h2>AI Processing</h2>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="ai-processing-enabled" checked>
+                        Enable AI processing (Summarization, Categorization, Tagging)
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="auto-tagging" checked>
+                        Automatic AI tagging
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="connection-discovery" checked>
+                        AI-powered connection discovery
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="processing-delay">Processing Delay (seconds)</label>
+                    <input type="range" id="processing-delay" min="0" max="10" value="1">
+                    <span id="delay-value">1s</span>
+                </div>
+            </section>
+            
+            <!-- Storage Settings -->
+            <section class="settings-section hidden" id="storage-section">
+                <h2>Storage Management</h2>
+                
+                <div class="storage-stats">
+                    <div class="stat">
+                        <span class="stat-label">Items Stored:</span>
+                        <span id="items-count">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Storage Used:</span>
+                        <span id="storage-used">0 MB</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Available:</span>
+                        <span id="storage-available">100 MB</span>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <button id="clear-cache-btn" class="danger-btn">Clear Cache</button>
+                    <p class="setting-description">Clear temporary AI processing cache</p>
+                </div>
+            </section>
+            
+            <!-- API Gateway Settings -->
+            <section class="settings-section hidden" id="api-section">
+                <h2>API Gateway</h2>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="api-gateway-enabled">
+                        Enable API Gateway for external access
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="api-port">API Port</label>
+                    <input type="number" id="api-port" value="8080" min="1024" max="65535">
+                </div>
+                
+                <div class="api-tokens">
+                    <h3>API Tokens</h3>
+                    <button id="generate-token-btn">Generate New Token</button>
+                    <div id="token-list">
+                        <!-- API tokens will be listed here -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Backup & Export Settings -->
+            <section class="settings-section hidden" id="backup-section">
+                <h2>Backup & Export</h2>
+                
+                <div class="setting-group">
+                    <label for="backup-frequency">Automatic Backup</label>
+                    <select id="backup-frequency">
+                        <option value="never">Never</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                
+                <div class="export-actions">
+                    <button id="export-json-btn">Export as JSON</button>
+                    <button id="export-csv-btn">Export as CSV</button>
+                    <button id="import-data-btn">Import Data</button>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="options-footer">
+            <button id="save-settings-btn" class="primary-btn">Save Settings</button>
+            <button id="reset-settings-btn" class="secondary-btn">Reset to Defaults</button>
+        </footer>
+    </div>
+    
+    <script src="options.js"></script>
+</body>
+</html>

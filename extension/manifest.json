@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "SmartShelf - AI-Powered Personal Knowledge Hub",
+  "version": "1.0.0",
+  "description": "Intelligent Chrome extension that organizes your digital and physical content collections using Chrome's Built-in AI APIs",
+  
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "commands"
+  ],
+  
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content-script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "SmartShelf - Save to Knowledge Hub"
+  },
+  
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+  
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  
+  "commands": {
+    "save-current-page": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Save current page to SmartShelf"
+    },
+    "open-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Open SmartShelf search"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      }
+    }
+  },
+  
+
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["shared/utils/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

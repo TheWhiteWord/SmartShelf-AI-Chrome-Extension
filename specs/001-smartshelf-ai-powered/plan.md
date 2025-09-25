@@ -5,6 +5,7 @@
 **Input**: Feature specification from `/media/theww/AI/Code/AI/Google_Chrome_Built_In/specs/001-smartshelf-ai-powered/spec.md`
 
 ## Execution Flow (/plan command scope)
+
 ```
 1. Load feature spec from Input path
    → If not found: ERROR "No feature spec at {path}"
@@ -27,13 +28,16 @@
 ```
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
+
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
+
 Chrome Extension that creates an AI-powered personal knowledge management hub, enabling users to save and organize both digital content (articles, videos, web pages) and physical items (books, documents) with automatic AI summarization, categorization, and intelligent search. Integrates Chrome Built-in AI APIs for content processing, Internet Archive for digital content access, and provides API gateway for external AI agent integration.
 
 ## Technical Context
+
 **Language/Version**: JavaScript ES2022, HTML5, CSS3 (Chrome Extension Manifest V3)  
 **Primary Dependencies**: Chrome Built-in AI APIs (Prompt, Summarizer, Writer, Rewriter, Translator), Internet Archive API, Chrome Extension APIs (Storage, Action, Content Scripts, Service Worker)  
 **Storage**: Chrome Storage API (local/sync), IndexedDB for large datasets, no external databases  
@@ -45,6 +49,7 @@ Chrome Extension that creates an AI-powered personal knowledge management hub, e
 **Scale/Scope**: Individual users, 10k+ items per collection, 5 core screens (popup, side panel, options)
 
 ## Constitution Check
+
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - [x] **AI-First Architecture**: Feature leverages Chrome Built-in AI APIs as primary processing engine (Prompt API for categorization, Summarizer API for content processing, Writer API for notes, Rewriter API for content improvement)
@@ -56,6 +61,7 @@ Chrome Extension that creates an AI-powered personal knowledge management hub, e
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```
 specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
@@ -67,6 +73,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 ```
 # Option 1: Single project (DEFAULT)
 src/
@@ -104,6 +111,7 @@ ios/ or android/
 ```
 
 **Structure Decision**: Chrome Extension structure (single project with extension-specific architecture):
+
 ```
 extension/
 ├── manifest.json        # Extension manifest
@@ -121,12 +129,14 @@ tests/
 ```
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
+
    ```
    For each unknown in Technical Context:
      Task: "Research {unknown} for {feature context}"
@@ -142,6 +152,7 @@ tests/
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
+
 *Prerequisites: research.md complete*
 
 1. **Extract entities from feature spec** → `data-model.md`:
@@ -175,18 +186,21 @@ tests/
 **Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
 
 ## Phase 2: Task Planning Approach
+
 *This section describes what the /tasks command will do - DO NOT execute during /plan*
 
 **Task Generation Strategy**:
+
 - Load `.specify/templates/tasks-template.md` as base
 - Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
 - Each contract → contract test task [P]
-- Each entity → model creation task [P] 
+- Each entity → model creation task [P]
 - Each user story → integration test task
 - Implementation tasks to make tests pass
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
+
+- TDD order: Tests before implementation
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
 
@@ -195,6 +209,7 @@ tests/
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
+
 *These phases are beyond the scope of the /plan command*
 
 **Phase 3**: Task execution (/tasks command creates tasks.md)  
@@ -202,6 +217,7 @@ tests/
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking
+
 *Fill ONLY if Constitution Check has violations that must be justified*
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
@@ -209,11 +225,12 @@ tests/
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
 
-
 ## Progress Tracking
+
 *This checklist is updated during execution flow*
 
 **Phase Status**:
+
 - [x] Phase 0: Research complete (/plan command)
 - [x] Phase 1: Design complete (/plan command)
 - [x] Phase 2: Task planning complete (/plan command - describe approach only)
@@ -222,6 +239,7 @@ tests/
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
+
 - [x] Initial Constitution Check: PASS
 - [x] Post-Design Constitution Check: PASS  
 - [x] All NEEDS CLARIFICATION resolved

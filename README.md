@@ -9,13 +9,15 @@ SmartShelf is an intelligent Chrome extension that revolutionizes personal knowl
 This project is designed for the [Google Chrome Built-in AI Challenge 2025](https://devpost.com/software/chrome-built-in-ai-challenge-2025), showcasing innovative use of Chrome's local AI processing capabilities while maintaining user privacy and delivering exceptional user experience.
 
 ### 🎯 Challenge Categories Targeted
+
 - **Most Helpful - Chrome Extension** ($14,000 prize)
-- **Best Multimodal AI Application** ($9,000 prize) 
+- **Best Multimodal AI Application** ($9,000 prize)
 - **Best Hybrid AI Application** ($9,000 prize)
 
 ## ✨ Key Features
 
 ### 🤖 AI-First Architecture
+
 - **Chrome Summarizer API**: Instant content summarization
 - **Chrome Prompt API**: Smart categorization and relationship discovery
 - **Chrome Writer API**: AI-generated insights and notes
@@ -23,12 +25,14 @@ This project is designed for the [Google Chrome Built-in AI Challenge 2025](http
 - **Chrome Translator API**: Multi-language support (planned)
 
 ### 🔒 Privacy-First Design
+
 - **100% Local Processing**: All AI operations happen client-side
 - **No Data Transmission**: Personal content never leaves your device
 - **Offline Capable**: Core features work without internet connection
 - **Zero External AI APIs**: Exclusively uses Chrome's Built-in AI
 
 ### 📚 Unified Knowledge Management
+
 - **Digital Content**: Save articles, videos, PDFs, web pages with one click
 - **Physical Items**: Track books, documents, and materials you own
 - **Internet Archive Integration**: Access digital versions of physical books
@@ -37,6 +41,7 @@ This project is designed for the [Google Chrome Built-in AI Challenge 2025](http
 - **Relationship Discovery**: AI identifies connections between your content
 
 ### 🔧 Chrome Extension Native
+
 - **Manifest V3 Compliant**: Modern Chrome Extension architecture
 - **Content Scripts**: Seamless page content capture
 - **Service Worker**: Background AI processing
@@ -45,6 +50,7 @@ This project is designed for the [Google Chrome Built-in AI Challenge 2025](http
 - **Keyboard Shortcuts**: Power user productivity features
 
 ### 🌐 External Integration Ready
+
 - **API Gateway**: Expose your knowledge base to external AI agents
 - **Token-Based Security**: Controlled access to your personal data
 - **Export Capabilities**: Data portability and backup options
@@ -53,13 +59,15 @@ This project is designed for the [Google Chrome Built-in AI Challenge 2025](http
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Chrome Browser (Latest version with Manifest V3 support)
 - Chrome Built-in AI APIs enabled (Experimental features)
 
 ### Installation
+
 ```bash
 # Clone the repository
-git clone https://github.com/[username]/SmartShelf-AI-Chrome-Extension.git
+git clone https://github.com/TheWhiteWord/SmartShelf-AI-Chrome-Extension.git
 cd SmartShelf-AI-Chrome-Extension
 
 # Install dependencies
@@ -75,6 +83,7 @@ npm run build
 ```
 
 ### First Use
+
 1. **Save Content**: Click the SmartShelf icon on any webpage to save it
 2. **AI Processing**: Watch as content gets automatically summarized and categorized
 3. **Search & Explore**: Use natural language to search your growing collection
@@ -84,6 +93,7 @@ npm run build
 ## 🏗 Technical Architecture
 
 ### Chrome Extension Structure
+
 ```
 extension/
 ├── manifest.json          # Extension configuration
@@ -96,6 +106,7 @@ extension/
 ```
 
 ### AI Processing Pipeline
+
 1. **Content Capture**: Extract text, metadata, and context from web pages
 2. **AI Enhancement**: Summarize, categorize, and tag using Chrome Built-in APIs
 3. **Relationship Analysis**: Discover connections between content items
@@ -103,6 +114,7 @@ extension/
 5. **Storage Optimization**: Efficient local storage using Chrome APIs and IndexedDB
 
 ### Data Models
+
 - **ContentItem**: Digital and physical content with AI-enhanced metadata
 - **Category**: Hierarchical organization structure
 - **Tag**: Descriptive labels (user-defined and AI-generated)
@@ -112,6 +124,7 @@ extension/
 ## 🧪 Testing Strategy
 
 ### Comprehensive Test Coverage
+
 - **Unit Tests**: Individual components and AI API integrations
 - **Integration Tests**: Chrome Extension functionality and workflows
 - **Contract Tests**: Internal API endpoint validation
@@ -119,6 +132,7 @@ extension/
 - **Performance Tests**: Large collection handling and AI processing speed
 
 ### Chrome AI API Testing
+
 - **Mock Testing**: Controlled AI API responses for consistent testing
 - **Real Content Testing**: Validation with actual web content
 - **Error Handling**: Robust fallback strategies for API failures
@@ -136,12 +150,14 @@ extension/
 ## 🎯 Development Roadmap
 
 ### Phase 1: Foundation (Completed ✅)
+
 - [x] Project constitution and governance
 - [x] Feature specification and requirements
 - [x] Technical research and architecture design
 - [x] Implementation planning and task breakdown
 
 ### Phase 2: Core Development (In Progress 🚧)
+
 - [ ] Chrome Extension project structure
 - [ ] Test-Driven Development setup
 - [ ] Chrome Built-in AI API integration
@@ -149,6 +165,7 @@ extension/
 - [ ] Content capture and processing pipeline
 
 ### Phase 3: AI Enhancement (Planned 📋)
+
 - [ ] Advanced relationship discovery
 - [ ] Natural language search optimization
 - [ ] Internet Archive integration
@@ -156,6 +173,7 @@ extension/
 - [ ] Performance optimization
 
 ### Phase 4: Polish & Launch (Planned 🎬)
+
 - [ ] User interface refinement
 - [ ] Comprehensive testing and bug fixes
 - [ ] Documentation and tutorials
@@ -177,6 +195,7 @@ This project operates under a strict [constitutional framework](.specify/memory/
 This project is developed for the Chrome Built-in AI Challenge 2025. Post-hackathon, we welcome contributions!
 
 ### Development Setup
+
 ```bash
 # Install dependencies
 npm install
@@ -201,6 +220,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🏅 Hackathon Submission
 
 ### Judging Criteria Alignment
+
 - **Functionality**: Scalable AI-powered knowledge management
 - **Purpose**: Solves real productivity challenges for knowledge workers
 - **Content**: Clean, intuitive interface with AI enhancement
@@ -208,6 +228,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Technological Execution**: Comprehensive Chrome Built-in AI API showcase
 
 ### Competitive Advantages
+
 1. **Physical-Digital Bridge**: First Chrome extension to unite physical and digital collections
 2. **Privacy-First AI**: Local processing with zero data transmission
 3. **AI Agent Ready**: Future-proof integration with external AI assistants
