@@ -29,12 +29,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/[username]/SmartShelf-AI-Chrome-Extension.git"
+    "url": "git+https://github.com/TheWhiteWord/SmartShelf-AI-Chrome-Extension.git"
   },
   "bugs": {
-    "url": "https://github.com/[username]/SmartShelf-AI-Chrome-Extension/issues"
+    "url": "https://github.com/TheWhiteWord/SmartShelf-AI-Chrome-Extension/issues"
   },
-  "homepage": "https://github.com/[username]/SmartShelf-AI-Chrome-Extension#readme",
+  "homepage": "https://github.com/TheWhiteWord/SmartShelf-AI-Chrome-Extension#readme",
   "devDependencies": {
     "@types/chrome": "^0.0.248",
     "eslint": "^8.54.0",

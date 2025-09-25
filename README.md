@@ -59,7 +59,7 @@ This project is designed for the [Google Chrome Built-in AI Challenge 2025](http
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/[username]/SmartShelf-AI-Chrome-Extension.git
+git clone https://github.com/TheWhiteWord/SmartShelf-AI-Chrome-Extension.git
 cd SmartShelf-AI-Chrome-Extension
 
 # Install dependencies
