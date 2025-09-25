@@ -4,15 +4,19 @@
 **Prerequisites**: plan.md (✓), research.md (✓), data-model.md (✓), contracts/ (✓), quickstart.md (✓)
 
 ## Format: `[ID] [P?] Description`
+
 - **[P]**: Can run in parallel (different files, no dependencies)
 - Include exact file paths in descriptions
 
 ## Path Conventions
+
 Chrome Extension structure (from implementation plan):
+
 - **Extension**: `extension/` at repository root
 - **Tests**: `tests/` with unit/, integration/, e2e/ subdirectories
 
 ## Phase 3.1: Setup & Project Structure
+
 - [ ] T001 Create Chrome Extension project structure with manifest.json, background/, content/, popup/, sidepanel/, options/, shared/ directories
 - [ ] T002 Initialize package.json with Jest, Puppeteer, Chrome Extension Testing Framework dependencies
 - [ ] T003 [P] Configure ESLint and Prettier for JavaScript ES2022 with Chrome Extension rules
@@ -20,9 +24,11 @@ Chrome Extension structure (from implementation plan):
 - [ ] T005 Create manifest.json with Manifest V3 configuration, permissions for Chrome Built-in AI APIs, Storage API, and Internet Archive access
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
+
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 
 ### Contract Tests (API Endpoints)
+
 - [ ] T006 [P] Contract test POST /api/content/save in tests/unit/contracts/test-content-save.js
 - [ ] T007 [P] Contract test GET /api/content/{id} in tests/unit/contracts/test-content-get.js  
 - [ ] T008 [P] Contract test PUT /api/content/{id} in tests/unit/contracts/test-content-update.js
@@ -32,6 +38,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T012 [P] Contract test GET /api/external/content in tests/unit/contracts/test-external-api.js
 
 ### Entity Model Tests
+
 - [ ] T013 [P] ContentItem model tests in tests/unit/models/test-content-item.js
 - [ ] T014 [P] PhysicalItem model tests in tests/unit/models/test-physical-item.js
 - [ ] T015 [P] Category model tests in tests/unit/models/test-category.js
@@ -43,6 +50,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T021 [P] UserSettings model tests in tests/unit/models/test-user-settings.js
 
 ### Integration Tests (Test Scenarios from Quickstart)
+
 - [ ] T022 [P] Digital content capture & AI processing integration test in tests/integration/test-content-capture.js
 - [ ] T023 [P] Natural language search integration test in tests/integration/test-search.js
 - [ ] T024 [P] Physical item integration test in tests/integration/test-physical-items.js
@@ -50,6 +58,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T026 [P] External API access integration test in tests/integration/test-external-api.js
 
 ### Chrome Extension Integration Tests
+
 - [ ] T027 [P] Content Script functionality test in tests/integration/test-content-script.js
 - [ ] T028 [P] Service Worker background processing test in tests/integration/test-service-worker.js
 - [ ] T029 [P] Chrome Storage API integration test in tests/integration/test-storage.js
@@ -58,6 +67,7 @@ Chrome Extension structure (from implementation plan):
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
 ### Data Models (Independent - Can Run in Parallel)
+
 - [ ] T031 [P] ContentItem model class in extension/shared/models/content-item.js
 - [ ] T032 [P] PhysicalItem model class in extension/shared/models/physical-item.js
 - [ ] T033 [P] Category model class in extension/shared/models/category.js
@@ -69,21 +79,25 @@ Chrome Extension structure (from implementation plan):
 - [ ] T039 [P] UserSettings model class in extension/shared/models/user-settings.js
 
 ### Storage Services (Depend on Models)
+
 - [ ] T040 Storage service for Chrome Storage API and IndexedDB in extension/shared/services/storage-service.js
 - [ ] T041 Content repository for ContentItem CRUD operations in extension/shared/services/content-repository.js
 - [ ] T042 Search service for natural language queries in extension/shared/services/search-service.js
 
 ### Chrome Built-in AI Integration Services
+
 - [ ] T043 [P] AI Summarizer service using Chrome Summarizer API in extension/shared/services/ai-summarizer.js
 - [ ] T044 [P] AI Categorizer service using Chrome Prompt API in extension/shared/services/ai-categorizer.js
 - [ ] T045 [P] AI Connection Discovery service using Chrome Prompt API in extension/shared/services/ai-connections.js
 - [ ] T046 [P] AI Writer service for insights and notes in extension/shared/services/ai-writer.js
 
 ### External API Integration
+
 - [ ] T047 [P] Internet Archive API client in extension/shared/services/internet-archive-client.js
 - [ ] T048 [P] API Gateway server for external access in extension/shared/services/api-gateway.js
 
 ### Chrome Extension Components
+
 - [ ] T049 Content Script for page content capture in extension/content/content-script.js
 - [ ] T050 Service Worker for background AI processing in extension/background/service-worker.js
 - [ ] T051 Extension popup interface in extension/popup/popup.html and extension/popup/popup.js
@@ -91,6 +105,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T053 Options page for settings in extension/options/options.html and extension/options/options.js
 
 ### API Endpoints Implementation
+
 - [ ] T054 POST /api/content/save endpoint implementation in extension/background/api/content-api.js
 - [ ] T055 GET /api/content/{id} and PUT /api/content/{id} endpoints in extension/background/api/content-api.js
 - [ ] T056 GET /api/search endpoint implementation in extension/background/api/search-api.js
@@ -99,6 +114,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T059 GET /api/external/content endpoint implementation in extension/background/api/external-api.js
 
 ## Phase 3.4: Integration & Chrome Extension Features
+
 - [ ] T060 Connect Content Script to Service Worker messaging for content capture
 - [ ] T061 Implement Chrome Storage persistence for user data and settings
 - [ ] T062 Add Chrome Extension Action (toolbar icon) with popup integration
@@ -107,6 +123,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T065 Implement Chrome Extension installation and update handlers
 
 ## Phase 3.5: AI Processing Pipeline
+
 - [ ] T066 Content processing pipeline in Service Worker (capture → AI processing → storage → indexing)
 - [ ] T067 Background AI processing queue with progress tracking and error handling
 - [ ] T068 Connection discovery background job for relationship identification
@@ -114,6 +131,7 @@ Chrome Extension structure (from implementation plan):
 - [ ] T070 AI processing error handling and retry mechanisms
 
 ## Phase 3.6: Polish & Performance
+
 - [ ] T071 [P] Unit tests for utility functions in tests/unit/utils/
 - [ ] T072 [P] Performance tests for AI processing pipeline in tests/performance/test-ai-performance.js
 - [ ] T073 [P] Performance tests for search with large collections in tests/performance/test-search-performance.js
@@ -126,15 +144,18 @@ Chrome Extension structure (from implementation plan):
 - [ ] T080 Create 3-minute demo video showcasing core features
 
 ## Dependencies
+
 **Critical Path Dependencies:**
+
 - Setup (T001-T005) → All other tasks
 - Tests (T006-T030) → Implementation tasks (T031-T080)
 - Models (T031-T039) → Services (T040-T048)
-- Services (T040-T048) → Extension Components (T049-T053) 
+- Services (T040-T048) → Extension Components (T049-T053)
 - Extension Components (T049-T053) → API Endpoints (T054-T059)
 - Core Implementation (T031-T059) → Integration (T060-T070) → Polish (T071-T080)
 
 **Parallel Execution Groups:**
+
 - **Setup Parallel**: T003, T004 (linting and Jest config)
 - **Contract Tests**: T006-T012 (all API contract tests)
 - **Model Tests**: T013-T021 (all entity model tests)
@@ -145,6 +166,7 @@ Chrome Extension structure (from implementation plan):
 - **Polish Tasks**: T071-T076, T079 (tests, docs, packaging)
 
 ## Parallel Example
+
 ```bash
 # Launch contract test group together:
 Task: "Contract test POST /api/content/save in tests/unit/contracts/test-content-save.js"
@@ -160,7 +182,9 @@ Task: "Connection model class in extension/shared/models/connection.js"
 ```
 
 ## Validation Checklist
+
 **Task Completeness:**
+
 - [x] All 6 API contracts have corresponding tests (T006-T012)
 - [x] All 9 entities have model tests and implementations (T013-T021, T031-T039)
 - [x] All 5 test scenarios from quickstart have integration tests (T022-T026)
@@ -170,6 +194,7 @@ Task: "Connection model class in extension/shared/models/connection.js"
 - [x] Demo preparation and hackathon deliverables addressed
 
 **Constitutional Compliance:**
+
 - [x] AI-First: Multiple Chrome Built-in AI APIs integrated throughout
 - [x] Privacy-Local: All AI processing client-side, no external AI APIs
 - [x] Extension-Native: Full Chrome Extension integration with proper APIs
@@ -177,6 +202,7 @@ Task: "Connection model class in extension/shared/models/connection.js"
 - [x] Hackathon-Focused: Clear demo path and 3-minute video preparation
 
 ## Estimated Timeline
+
 - **Phase 3.1 (Setup)**: 1-2 days
 - **Phase 3.2 (Tests)**: 3-4 days  
 - **Phase 3.3 (Core Implementation)**: 5-7 days
@@ -186,6 +212,7 @@ Task: "Connection model class in extension/shared/models/connection.js"
 - **Total**: 15-22 days (3-4 weeks for hackathon completion)
 
 ## Notes
+
 - All [P] tasks can be executed in parallel when prerequisites are met
 - TDD approach: All tests (T006-T030) MUST be written and failing before implementation
 - Chrome Extension testing requires special setup with Chrome Extension Testing Framework

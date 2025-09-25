@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShelf - Knowledge Hub</title>
+    <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+    <div class="sidepanel-container">
+        <header class="sidepanel-header">
+            <div class="header-top">
+                <img src="../icons/icon32.png" alt="SmartShelf" class="logo">
+                <h1>SmartShelf</h1>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search your knowledge..." autocomplete="off">
+                <button id="search-btn" class="search-btn">🔍</button>
+            </div>
+            
+            <div class="header-actions">
+                <button id="add-content-btn" class="action-btn">+ Add Content</button>
+                <button id="add-physical-btn" class="action-btn">📚 Add Physical</button>
+            </div>
+        </header>
+        
+        <nav class="navigation">
+            <button class="nav-btn active" data-view="all">All Items</button>
+            <button class="nav-btn" data-view="recent">Recent</button>
+            <button class="nav-btn" data-view="categories">Categories</button>
+            <button class="nav-btn" data-view="connections">Connections</button>
+        </nav>
+        
+        <main class="sidepanel-content">
+            <div class="content-view" id="all-view">
+                <div class="content-grid" id="content-grid">
+                    <!-- Content items will be dynamically loaded here -->
+                </div>
+            </div>
+            
+            <div class="content-view hidden" id="recent-view">
+                <h2>Recent Items</h2>
+                <div class="recent-items" id="recent-items">
+                    <!-- Recent items will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="content-view hidden" id="categories-view">
+                <h2>Categories</h2>
+                <div class="categories-grid" id="categories-grid">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="content-view hidden" id="connections-view">
+                <h2>AI-Discovered Connections</h2>
+                <div class="connections-graph" id="connections-graph">
+                    <!-- Connection visualization will be loaded here -->
+                </div>
+            </div>
+        </main>
+        
+        <footer class="sidepanel-footer">
+            <div class="stats">
+                <span id="item-count">0 items</span>
+                <span id="processing-status"></span>
+            </div>
+            
+            <div class="footer-actions">
+                <button id="settings-btn" class="footer-btn">⚙️</button>
+                <button id="export-btn" class="footer-btn">📤</button>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="sidepanel.js"></script>
+</body>
+</html>

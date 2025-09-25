@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShelf - Save Content</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <header class="popup-header">
+            <img src="../icons/icon32.png" alt="SmartShelf" class="logo">
+            <h1>SmartShelf</h1>
+        </header>
+        
+        <main class="popup-content">
+            <div class="page-info">
+                <h2 id="page-title">Loading page...</h2>
+                <p id="page-url">...</p>
+            </div>
+            
+            <div class="actions">
+                <button id="save-btn" class="primary-btn">
+                    <span class="icon">📚</span>
+                    Save to SmartShelf
+                </button>
+                
+                <button id="view-collection-btn" class="secondary-btn">
+                    <span class="icon">🔍</span>
+                    View Collection
+                </button>
+            </div>
+            
+            <div class="quick-actions">
+                <button id="add-physical-btn" class="quick-btn">
+                    <span class="icon">📖</span>
+                    Add Physical Item
+                </button>
+                
+                <button id="search-btn" class="quick-btn">
+                    <span class="icon">🔎</span>
+                    Search Collection
+                </button>
+            </div>
+        </main>
+        
+        <footer class="popup-footer">
+            <div class="status" id="status-message">
+                Ready to save content
+            </div>
+        </footer>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
