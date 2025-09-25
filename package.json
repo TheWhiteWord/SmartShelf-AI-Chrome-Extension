@@ -58,20 +58,7 @@
     "last 2 Chrome versions"
   ],
   "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["jest-chrome/setup"],
-    "testMatch": [
-      "<rootDir>/tests/**/*.test.js",
-      "<rootDir>/tests/**/*.spec.js"
-    ],
-    "collectCoverageFrom": [
-      "extension/**/*.js",
-      "!extension/build/**",
-      "!extension/dist/**",
-      "!**/node_modules/**"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"]
+    "projects": ["<rootDir>/tests/jest.config.js"]
   },
   "eslintConfig": {
     "env": {
