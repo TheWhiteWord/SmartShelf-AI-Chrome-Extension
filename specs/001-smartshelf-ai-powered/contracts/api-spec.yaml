@@ -1,0 +1,372 @@
+openapi: 3.0.3
+info:
+  title: SmartShelf Chrome Extension Internal API
+  description: Internal API contracts for SmartShelf Chrome Extension functionality
+  version: 1.0.0
+
+paths:
+  # Content Management API
+  /api/content/save:
+    post:
+      summary: Save new content item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - type
+                - source
+              properties:
+                title:
+                  type: string
+                  maxLength: 200
+                type:
+                  type: string
+                  enum: [article, video, book, document, image, audio]
+                source:
+                  type: string
+                contentText:
+                  type: string
+                isPhysical:
+                  type: boolean
+                  default: false
+                userNotes:
+                  type: string
+      responses:
+        '201':
+          description: Content saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentItem'
+        '400':
+          description: Invalid input data
+        '500':
+          description: Processing error
+
+  /api/content/{id}:
+    get:
+      summary: Get content item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Content item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentItem'
+        '404':
+          description: Content not found
+
+    put:
+      summary: Update content item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentItemUpdate'
+      responses:
+        '200':
+          description: Content updated successfully
+        '404':
+          description: Content not found
+
+  # Search API
+  /api/search:
+    get:
+      summary: Search content collection
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Natural language search query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SearchResult'
+                  total:
+                    type: integer
+                  query:
+                    type: string
+                  processingTime:
+                    type: number
+
+  # AI Processing API
+  /api/ai/summarize:
+    post:
+      summary: Generate AI summary for content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentId
+              properties:
+                contentId:
+                  type: string
+                forceRegenerate:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: string
+                  processingTime:
+                    type: number
+                  confidence:
+                    type: number
+
+  /api/ai/categorize:
+    post:
+      summary: AI categorization and tagging
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentId
+              properties:
+                contentId:
+                  type: string
+                existingCategories:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Categorization complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+                  confidence:
+                    type: number
+
+  # External API Gateway
+  /api/external/content:
+    get:
+      summary: External API access to content collection
+      security:
+        - apiKey: []
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, xml]
+            default: json
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [content, summary, tags, categories, connections]
+      responses:
+        '200':
+          description: Content collection data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExternalContentItem'
+                  meta:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                      lastUpdated:
+                        type: string
+                        format: date-time
+        '401':
+          description: Invalid or missing API key
+        '403':
+          description: Insufficient permissions
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-SmartShelf-Token
+
+  schemas:
+    ContentItem:
+      type: object
+      required:
+        - id
+        - title
+        - type
+        - source
+        - dateAdded
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [article, video, book, document, image, audio]
+        source:
+          type: string
+        contentText:
+          type: string
+        summary:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        categories:
+          type: array
+          items:
+            type: string
+        dateAdded:
+          type: string
+          format: date-time
+        dateModified:
+          type: string
+          format: date-time
+        isPhysical:
+          type: boolean
+        notes:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, processed, error, manual]
+
+    ContentItemUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        notes:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [user-defined, ai-generated, system]
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    SearchResult:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/ContentItem'
+        relevance:
+          type: number
+        matchedTerms:
+          type: array
+          items:
+            type: string
+        connections:
+          type: array
+          items:
+            type: object
+            properties:
+              relatedItem:
+                $ref: '#/components/schemas/ContentItem'
+              connectionType:
+                type: string
+              strength:
+                type: number
+
+    ExternalContentItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        summary:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        categories:
+          type: array
+          items:
+            type: string
+        dateAdded:
+          type: string
+          format: date-time
+        isPhysical:
+          type: boolean
