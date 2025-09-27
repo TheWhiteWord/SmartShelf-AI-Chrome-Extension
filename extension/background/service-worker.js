@@ -3,9 +3,16 @@
 
 console.log('SmartShelf Service Worker loaded')
 
+// Import AI Connection Discovery Service
+importScripts('../shared/services/ai-connection-discovery.js')
+importScripts('../shared/models/connection.js')
+importScripts('../shared/services/export-api-gateway.js')
+
 // Global AI session management
 let aiSession = null
 let summarizerSession = null
+let connectionDiscoveryService = null
+let exportAPIGateway = null
 // let processingQueue = [] // TODO: Implement queue processing
 // let isProcessingQueue = false // TODO: Implement queue processing
 
@@ -54,6 +61,14 @@ async function initializeExtension() {
       })
       console.log('Local data structures initialized')
     }
+
+    // Initialize AI Connection Discovery Service
+    connectionDiscoveryService = new AIConnectionDiscoveryService()
+    await connectionDiscoveryService.initialize()
+
+    // Initialize Export-Only API Gateway
+    exportAPIGateway = new ExportOnlyAPIGateway()
+    await exportAPIGateway.initialize()
   } catch (error) {
     console.error('Failed to initialize extension:', error)
   }
@@ -101,8 +116,28 @@ async function initializeAICapabilities() {
     } else {
       console.log('Chrome Built-in AI not available, using fallback processing')
     }
+
+    // Initialize AI Connection Discovery Service
+    await initializeConnectionDiscovery()
   } catch (error) {
     console.log('AI initialization failed, using fallback:', error.message)
+  }
+}
+
+// Initialize AI Connection Discovery Service
+async function initializeConnectionDiscovery() {
+  try {
+    connectionDiscoveryService = new AIConnectionDiscoveryService()
+    const initialized = await connectionDiscoveryService.initialize()
+
+    if (initialized) {
+      console.log('AI Connection Discovery service initialized successfully')
+    } else {
+      console.warn('AI Connection Discovery service initialization failed - Chrome Built-in AI may not be available')
+    }
+  } catch (error) {
+    console.error('Failed to initialize Connection Discovery service:', error)
+    connectionDiscoveryService = null
   }
 }
 
@@ -289,6 +324,9 @@ async function processWithAI(itemId) {
     await chrome.storage.local.set({ contentItems })
 
     console.log('AI processing completed for:', itemId)
+
+    // Trigger AI connection discovery for the newly processed item
+    await triggerConnectionDiscovery(item, contentItems)
   } catch (error) {
     console.error('AI processing failed:', error)
 
@@ -503,6 +541,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .then(results => sendResponse({ success: true, data: results }))
         .catch(error => sendResponse({ success: false, error: error.message }))
       return true
+
+    case 'get_item_connections':
+      getItemConnections(request.itemId)
+        .then(connections => sendResponse({ success: true, data: connections }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'trigger_batch_connection_discovery':
+      performBatchConnectionDiscovery()
+        .then(connections => sendResponse({ success: true, data: connections }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'get_connection_discovery_stats':
+      const stats = getConnectionDiscoveryStats()
+      sendResponse({ success: true, data: stats })
+      break
+
+    case 'api_request':
+      processAPIRequest(request.endpoint, request.token, request.params)
+        .then(response => sendResponse({ success: true, data: response }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'generate_api_token':
+      generateAPIToken(request.name, request.permissions, request.expiresAt)
+        .then(token => sendResponse({ success: true, data: token }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'revoke_api_token':
+      revokeAPIToken(request.tokenId)
+        .then(result => sendResponse({ success: true, data: result }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'get_api_usage_stats':
+      const apiStats = getAPIUsageStats()
+      sendResponse({ success: true, data: apiStats })
+      break
   }
 })
 
@@ -527,5 +605,244 @@ async function searchContent(query) {
   } catch (error) {
     console.error('Search failed:', error)
     return []
+  }
+}
+
+// AI Connection Discovery Functions
+
+/**
+ * Trigger connection discovery for a newly processed item
+ * @param {Object} newItem - The newly processed content item
+ * @param {Array} allItems - All content items including the new one
+ */
+async function triggerConnectionDiscovery(newItem, allItems) {
+  try {
+    // Check if connection discovery is enabled in settings
+    const { smartshelfSettings } = await chrome.storage.sync.get('smartshelfSettings')
+
+    if (!smartshelfSettings?.connectionDiscovery || !connectionDiscoveryService) {
+      console.log('Connection discovery disabled or service unavailable')
+      return
+    }
+
+    console.log(`Triggering connection discovery for: ${newItem.title}`)
+
+    // Get all other items (excluding the new item itself)
+    const existingItems = allItems.filter(item => item.id !== newItem.id && item.status === 'processed')
+
+    if (existingItems.length === 0) {
+      console.log('No existing items to analyze connections with')
+      return
+    }
+
+    // Discover connections in background (don't await to avoid blocking)
+    connectionDiscoveryService.discoverConnectionsForItem(newItem, existingItems)
+      .then(connections => {
+        if (connections.length > 0) {
+          console.log(`Found ${connections.length} connections for item: ${newItem.title}`)
+
+          // Notify UI about new connections if needed
+          notifyUIAboutNewConnections(newItem.id, connections)
+        }
+      })
+      .catch(error => {
+        console.error('Connection discovery failed for item:', newItem.title, error)
+      })
+  } catch (error) {
+    console.error('Failed to trigger connection discovery:', error)
+  }
+}
+
+/**
+ * Perform batch connection discovery for all items
+ * This can be called manually or on a schedule
+ */
+async function performBatchConnectionDiscovery() {
+  try {
+    if (!connectionDiscoveryService) {
+      console.warn('Connection discovery service not available')
+      return
+    }
+
+    console.log('Starting batch connection discovery...')
+
+    const { contentItems = [] } = await chrome.storage.local.get('contentItems')
+    const processedItems = contentItems.filter(item => item.status === 'processed')
+
+    if (processedItems.length < 2) {
+      console.log('Need at least 2 processed items for connection discovery')
+      return
+    }
+
+    const connections = await connectionDiscoveryService.batchDiscoverConnections(processedItems, 3)
+
+    console.log(`Batch connection discovery completed: ${connections.length} total connections found`)
+
+    if (connections.length > 0) {
+      // Notify UI about batch discovery completion
+      notifyUIAboutBatchDiscovery(connections.length)
+    }
+
+    return connections
+  } catch (error) {
+    console.error('Batch connection discovery failed:', error)
+    return []
+  }
+}
+
+/**
+ * Get connections for a specific item
+ * @param {string} itemId - Item ID to get connections for
+ * @returns {Promise<Array>} Array of connections
+ */
+async function getItemConnections(itemId) {
+  try {
+    if (!connectionDiscoveryService) {
+      return []
+    }
+
+    return await connectionDiscoveryService.getConnectionsForItem(itemId)
+  } catch (error) {
+    console.error('Failed to get item connections:', error)
+    return []
+  }
+}
+
+/**
+ * Get connection discovery statistics
+ * @returns {Object} Processing statistics
+ */
+function getConnectionDiscoveryStats() {
+  if (!connectionDiscoveryService) {
+    return {
+      isAvailable: false,
+      message: 'Connection discovery service not available'
+    }
+  }
+
+  return {
+    isAvailable: true,
+    ...connectionDiscoveryService.getProcessingStats()
+  }
+}
+
+/**
+ * Notify UI components about new connections
+ * @param {string} itemId - Item ID that has new connections
+ * @param {Array} connections - Array of new connections
+ */
+function notifyUIAboutNewConnections(itemId, connections) {
+  try {
+    // Send message to any listening UI components (sidepanel, popup)
+    chrome.runtime.sendMessage({
+      type: 'connections_discovered',
+      data: {
+        itemId,
+        connectionCount: connections.length,
+        connections: connections.map(conn => conn.toJSON())
+      }
+    }).catch(() => {
+      // No listeners, which is fine
+    })
+  } catch (error) {
+    console.error('Failed to notify UI about connections:', error)
+  }
+}
+
+/**
+ * Notify UI about batch discovery completion
+ * @param {number} totalConnections - Total connections found
+ */
+function notifyUIAboutBatchDiscovery(totalConnections) {
+  try {
+    chrome.runtime.sendMessage({
+      type: 'batch_discovery_complete',
+      data: {
+        totalConnections,
+        timestamp: new Date().toISOString()
+      }
+    }).catch(() => {
+      // No listeners, which is fine
+    })
+  } catch (error) {
+    console.error('Failed to notify UI about batch discovery:', error)
+  }
+}
+
+// Export-Only API Functions
+
+/**
+ * Process API request through the Export-Only API Gateway
+ * @param {string} endpoint - API endpoint
+ * @param {string} token - API token
+ * @param {Object} params - Request parameters
+ * @returns {Promise<Object>} API response
+ */
+async function processAPIRequest(endpoint, token, params) {
+  try {
+    if (!exportAPIGateway) {
+      throw new Error('Export API Gateway not available')
+    }
+
+    return await exportAPIGateway.processAPIRequest(endpoint, token, params)
+  } catch (error) {
+    console.error('API request processing failed:', error)
+    throw error
+  }
+}
+
+/**
+ * Generate new API token
+ * @param {string} name - Token name
+ * @param {Array} permissions - Permissions array
+ * @param {Date} expiresAt - Expiration date
+ * @returns {Promise<Object>} Token information
+ */
+async function generateAPIToken(name, permissions, expiresAt) {
+  try {
+    if (!exportAPIGateway) {
+      throw new Error('Export API Gateway not available')
+    }
+
+    return await exportAPIGateway.generateAPIToken(name, permissions, expiresAt)
+  } catch (error) {
+    console.error('API token generation failed:', error)
+    throw error
+  }
+}
+
+/**
+ * Revoke API token
+ * @param {string} tokenId - Token ID to revoke
+ * @returns {Promise<boolean>} Success status
+ */
+async function revokeAPIToken(tokenId) {
+  try {
+    if (!exportAPIGateway) {
+      throw new Error('Export API Gateway not available')
+    }
+
+    return await exportAPIGateway.revokeAPIToken(tokenId)
+  } catch (error) {
+    console.error('API token revocation failed:', error)
+    throw error
+  }
+}
+
+/**
+ * Get API usage statistics
+ * @returns {Object} Usage statistics
+ */
+function getAPIUsageStats() {
+  if (!exportAPIGateway) {
+    return {
+      isAvailable: false,
+      message: 'Export API Gateway not available'
+    }
+  }
+
+  return {
+    isAvailable: true,
+    ...exportAPIGateway.getUsageStats()
   }
 }

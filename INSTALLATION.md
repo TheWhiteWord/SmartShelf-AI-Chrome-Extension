@@ -3,12 +3,14 @@
 ## 📦 **Installation Instructions**
 
 ### Prerequisites
+
 - Google Chrome (version 120+) with Chrome Built-in AI Origin Trial enabled
 - Node.js (version 16+) for development
 
 ### 🔧 **Loading the Extension**
 
 1. **Open Chrome Extension Management**
+
    ```
    chrome://extensions/
    ```
@@ -34,11 +36,13 @@
 ### 🎯 **Testing the Chrome Built-in AI Integration**
 
 #### **Option 1: Enable Chrome Built-in AI Origin Trial (Recommended)**
-1. Visit: https://developer.chrome.com/docs/ai/built-in
+
+1. Visit: <https://developer.chrome.com/docs/ai/built-in>
 2. Follow the origin trial signup process
 3. Add the origin trial token to your Chrome flags
 
 #### **Option 2: Chrome Canary with AI Flags (For Development)**
+
 1. Install Chrome Canary
 2. Enable these flags in `chrome://flags/`:
    - `#optimization-guide-on-device-model`
@@ -48,34 +52,40 @@
 ### 🧪 **Testing Features**
 
 #### **1. Content Saving**
+
 - Navigate to any webpage (e.g., Wikipedia article, blog post)
 - Click the SmartShelf extension icon
 - Click "Save Current Page"
 - Verify the content appears in your collection (side panel)
 
 #### **2. AI Processing**
+
 - After saving content, observe AI processing indicators:
   - 🧠 "AI analyzing content..." in popup
   - Processing status in side panel
   - AI-generated tags, categories, and summaries
 
 #### **3. Search & Organization**
+
 - Open the side panel (click extension icon → "View Collection")
 - Search for saved content
 - Filter by categories and tags
 - Observe AI-enhanced organization
 
 #### **4. Keyboard Shortcuts**
+
 - `Ctrl+Shift+S` (or `Cmd+Shift+S` on Mac): Save current page
 - Access more shortcuts in extension options
 
 ### 🔍 **Debugging**
 
 #### **Check Extension Console**
+
 1. Go to `chrome://extensions/`
 2. Find SmartShelf extension
 3. Click "background page" or "service worker" to open DevTools
 4. Check console for AI initialization messages:
+
    ```
    SmartShelf Service Worker loaded
    AI Prompt capabilities: {...}
@@ -83,7 +93,9 @@
    ```
 
 #### **Verify AI API Availability**
+
 In the extension console, run:
+
 ```javascript
 // Check if Chrome Built-in AI is available
 console.log('AI Available:', 'aiOriginTrial' in chrome)
@@ -96,6 +108,7 @@ if (chrome.aiOriginTrial) {
 ```
 
 #### **Expected AI Capabilities Response**
+
 ```javascript
 {
   available: "readily", // or "after-download", "no"
@@ -109,12 +122,14 @@ if (chrome.aiOriginTrial) {
 ### 📊 **Test Data**
 
 #### **Sample Content for Testing**
+
 1. **Technology Articles**: Save articles from tech blogs to test AI categorization
 2. **Academic Papers**: Test AI summarization on longer content
 3. **News Articles**: Verify tagging and content analysis
 4. **Code Repositories**: Test detection of programming content
 
 #### **Expected AI Behaviors**
+
 - **Summarization**: 1-2 sentence summaries of main content
 - **Tagging**: 3-5 relevant tags based on content analysis
 - **Categorization**: 1-3 main categories (Technology, Science, Business, etc.)
@@ -123,16 +138,19 @@ if (chrome.aiOriginTrial) {
 ### 🚨 **Troubleshooting**
 
 #### **AI Not Working**
+
 - **Fallback Mode**: Extension works without AI (basic keyword extraction)
 - **Check Console**: Look for "AI initialization failed, using fallback" messages
 - **Origin Trial**: Ensure Chrome Built-in AI is properly enabled
 
 #### **Extension Not Loading**
+
 - **Manifest V3**: Ensure you're using Chrome 88+
 - **File Permissions**: Check that extension folder is accessible
 - **Clear Data**: Try clearing extension data and reloading
 
 #### **Performance Issues**
+
 - **Storage Limits**: Chrome local storage has limits (~10MB)
 - **AI Processing**: Large content may take longer to process
 - **Network**: Some AI features may require network connectivity
@@ -140,6 +158,7 @@ if (chrome.aiOriginTrial) {
 ### 🏆 **Hackathon Submission Verification**
 
 #### **Required Features Checklist**
+
 - ✅ Chrome Built-in AI integration (Prompt API)
 - ✅ AI-powered content analysis and categorization
 - ✅ Intelligent search and organization
@@ -148,6 +167,7 @@ if (chrome.aiOriginTrial) {
 - ✅ Comprehensive test coverage (50+ tests)
 
 #### **Demo Script**
+
 1. **Install & Setup** (1 min): Load extension, verify AI availability
 2. **Content Saving** (2 min): Save diverse content types
 3. **AI Processing** (2 min): Show real-time AI analysis

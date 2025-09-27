@@ -30,6 +30,8 @@
             <button class="nav-btn" data-view="recent">Recent</button>
             <button class="nav-btn" data-view="categories">Categories</button>
             <button class="nav-btn" data-view="connections">Connections</button>
+            <button class="nav-btn" data-view="collections">Collections</button>
+            <button class="nav-btn" data-view="physical">Physical Items</button>
         </nav>
         
         <main class="sidepanel-content">
@@ -59,6 +61,26 @@
                     <!-- Connection visualization will be loaded here -->
                 </div>
             </div>
+            
+            <div class="content-view hidden" id="collections-view">
+                <div class="collections-header">
+                    <h2>Collections</h2>
+                    <button id="create-collection-btn" class="create-btn">+ New Collection</button>
+                </div>
+                <div class="collections-grid" id="collections-grid">
+                    <!-- Collections will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="content-view hidden" id="physical-view">
+                <div class="physical-header">
+                    <h2>Physical Items</h2>
+                    <button id="add-physical-item-btn" class="create-btn">+ Add Physical Item</button>
+                </div>
+                <div class="physical-items-grid" id="physical-items-grid">
+                    <!-- Physical items will be loaded here -->
+                </div>
+            </div>
         </main>
         
         <footer class="sidepanel-footer">
@@ -72,6 +94,131 @@
                 <button id="export-btn" class="footer-btn">📤</button>
             </div>
         </footer>
+    </div>
+    
+    <!-- Physical Item Modal -->
+    <div id="physical-item-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Physical Item</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <form id="physical-item-form" class="modal-form">
+                <div class="form-group">
+                    <label for="physical-title">Title *</label>
+                    <input type="text" id="physical-title" name="title" required maxlength="200">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-author">Author</label>
+                    <input type="text" id="physical-author" name="author">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-isbn">ISBN</label>
+                    <input type="text" id="physical-isbn" name="isbn" placeholder="978-0123456789">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-publisher">Publisher</label>
+                    <input type="text" id="physical-publisher" name="publisher">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-location">Physical Location *</label>
+                    <input type="text" id="physical-location" name="physicalLocation" required placeholder="e.g., Home Office, Shelf 2">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-condition">Condition</label>
+                    <select id="physical-condition" name="condition">
+                        <option value="excellent">Excellent</option>
+                        <option value="good" selected>Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                        <option value="damaged">Damaged</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="physical-notes">Notes</label>
+                    <textarea id="physical-notes" name="notes" rows="3" placeholder="Personal notes about this item..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancel-physical">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Collection Modal -->
+    <div id="collection-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Collection</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <form id="collection-form" class="modal-form">
+                <div class="form-group">
+                    <label for="collection-name">Name *</label>
+                    <input type="text" id="collection-name" name="name" required maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="collection-description">Description</label>
+                    <textarea id="collection-description" name="description" rows="3" maxlength="500" placeholder="Describe this collection..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="collection-color">Color</label>
+                    <input type="color" id="collection-color" name="color" value="#3498db">
+                </div>
+                
+                <div class="form-group">
+                    <label for="collection-icon">Icon</label>
+                    <input type="text" id="collection-icon" name="icon" value="📁" maxlength="5" placeholder="📁">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="collection-private" name="isPrivate" checked>
+                        Private collection
+                    </label>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancel-collection">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Collection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Item Details Modal -->
+    <div id="item-details-modal" class="modal hidden">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="item-details-title">Item Details</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="item-details-content">
+                    <!-- Item details will be populated here -->
+                </div>
+                
+                <div class="item-connections">
+                    <h4>AI-Discovered Connections</h4>
+                    <div id="item-connections-list">
+                        <!-- Connections will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="sidepanel.js"></script>
