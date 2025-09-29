@@ -1,11 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: 0.0.0 → 1.0.0
-- Initial constitution creation for SmartShelf project
-- Added principles: AI-First, Privacy-Local, Extension-Native, Test-Chrome-APIs, Hackathon-Focused
-- Added sections: Hackathon Requirements, Chrome Extension Standards
-- Templates requiring updates: All templates already align with constitution requirements (✅)
-- Follow-up TODOs: None
+- Version change: 1.0.0 → 1.1.0
+- Added principle: VI. Debug-Native Development (new debugging workflow principle)
+- Modified sections: Chrome Extension Standards (added debugging requirements)
+- Templates requiring updates: plan-template.md (✅ updated Constitution Check), tasks-template.md (✅ verified alignment)
+- Follow-up TODOs: None - chrome-devtools-mcp integration fully documented
 -->
 
 # SmartShelf Constitution
@@ -42,6 +41,12 @@ Features MUST be completable within hackathon timeline; MVP over comprehensive f
 
 Rationale: Hackathon success requires strategic feature prioritization and deliverable focus rather than attempting comprehensive solutions.
 
+### VI. Debug-Native Development
+
+All development MUST integrate chrome-devtools-mcp for real-time debugging; Extension debugging workflows must be automatable through MCP commands; AI API testing and performance monitoring required via Chrome DevTools integration; Developer environment must support Node.js v22.12.0+ for MCP tooling.
+
+Rationale: Chrome Extension development with cutting-edge AI APIs requires sophisticated debugging tools to ensure reliable functionality, performance optimization, and rapid iteration during development cycles.
+
 ## Hackathon Requirements
 
 **Technical Compliance**: All code MUST be open source with clear license; GitHub repository with comprehensive README and setup instructions; Functioning demo accessible for judging; YouTube/Vimeo demo video under 3 minutes.
@@ -58,10 +63,12 @@ Rationale: Hackathon success requires strategic feature prioritization and deliv
 
 **User Experience**: Intuitive content capture workflow; Visual feedback for AI processing states; Error messages with actionable recovery steps; Keyboard shortcuts for power users.
 
+**Development Workflow**: Chrome DevTools MCP integration mandatory for debugging; Real-time AI API monitoring and performance analysis; Automated extension testing through MCP commands; Developer setup script must handle Node.js environment requirements.
+
 ## Governance
 
 Constitution supersedes all development decisions; Chrome Built-in AI API requirements are non-negotiable; Hackathon timeline constraints override feature completeness; All features must align with judging criteria for functionality, purpose, content quality, user experience, and technological execution.
 
 Complexity additions require explicit justification tied to competitive advantage; Changes to AI API integration strategy require constitutional amendment; Performance degradation below responsive UI standards constitutes constitutional violation.
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-25
+**Version**: 1.1.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-29

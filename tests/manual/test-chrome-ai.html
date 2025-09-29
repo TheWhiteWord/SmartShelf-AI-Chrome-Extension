@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chrome Built-in AI Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        #output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Chrome Built-in AI APIs Test</h1>
+    
+    <div class="info">
+        <strong>Setup Instructions:</strong>
+        <ol>
+            <li>Enable Chrome flag: <code>chrome://flags/#prompt-api-for-gemini-nano-multimodal-input</code></li>
+            <li>Restart Chrome</li>
+            <li>Open this file in Chrome (localhost or file://))</li>
+            <li>Click the test buttons below</li>
+        </ol>
+    </div>
+
+    <h2>API Availability Tests</h2>
+    <button onclick="testLanguageModel()">Test Language Model (Prompt API)</button>
+    <button onclick="testSummarizer()">Test Summarizer API</button>
+    <button onclick="testWriter()">Test Writer API</button>
+    
+    <h2>Functional Tests</h2>
+    <textarea id="testText" placeholder="Enter text to test with AI APIs...">
+This is a sample article about artificial intelligence and machine learning. 
+Chrome's built-in AI capabilities are revolutionizing web development by providing 
+local AI processing without the need for external API calls. This ensures better 
+privacy and faster response times for users.
+    </textarea>
+    
+    <button onclick="testPrompt()">Test AI Prompt</button>
+    <button onclick="testSummarization()">Test Summarization</button>
+    
+    <div id="output"></div>
+
+    <script>
+        function logResult(message, type = 'info') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function testLanguageModel() {
+            try {
+                if ('LanguageModel' in self) {
+                    const availability = await LanguageModel.availability();
+                    logResult(`LanguageModel availability: ${availability}`, 
+                        availability === 'available' ? 'success' : 
+                        availability === 'unavailable' ? 'error' : 'info');
+                    
+                    if (availability !== 'unavailable') {
+                        const params = await LanguageModel.params();
+                        logResult(`LanguageModel params: ${JSON.stringify(params)}`, 'success');
+                    }
+                } else {
+                    logResult('LanguageModel API not available in this browser', 'error');
+                }
+            } catch (error) {
+                logResult(`LanguageModel test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSummarizer() {
+            try {
+                if ('Summarizer' in self) {
+                    const availability = await Summarizer.availability();
+                    logResult(`Summarizer availability: ${availability}`, 
+                        availability === 'available' ? 'success' : 
+                        availability === 'unavailable' ? 'error' : 'info');
+                } else {
+                    logResult('Summarizer API not available in this browser', 'error');
+                }
+            } catch (error) {
+                logResult(`Summarizer test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWriter() {
+            try {
+                if ('Writer' in self) {
+                    const availability = await Writer.availability();
+                    logResult(`Writer availability: ${availability}`, 
+                        availability === 'available' ? 'success' : 
+                        availability === 'unavailable' ? 'error' : 'info');
+                } else {
+                    logResult('Writer API not available in this browser', 'error');
+                }
+            } catch (error) {
+                logResult(`Writer test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPrompt() {
+            try {
+                const text = document.getElementById('testText').value;
+                if (!text.trim()) {
+                    logResult('Please enter some text to analyze', 'error');
+                    return;
+                }
+
+                if ('LanguageModel' in self) {
+                    const availability = await LanguageModel.availability();
+                    if (availability === 'unavailable') {
+                        logResult('LanguageModel not available for prompting', 'error');
+                        return;
+                    }
+
+                    logResult('Creating language model session...', 'info');
+                    
+                    const session = await LanguageModel.create({
+                        temperature: 0.7,
+                        topK: 3
+                    });
+
+                    logResult('Prompting AI for content analysis...', 'info');
+                    
+                    const result = await session.prompt(`
+                        Analyze this content and extract:
+                        1. Main topic (1-2 words)
+                        2. Key themes (2-3 themes)
+                        3. Sentiment (positive/neutral/negative)
+                        
+                        Content: "${text}"
+                        
+                        Respond in this format:
+                        Topic: [main topic]
+                        Themes: [theme1, theme2, theme3]  
+                        Sentiment: [sentiment]
+                    `);
+
+                    logResult(`AI Analysis Result:<br><pre>${result}</pre>`, 'success');
+                    
+                    session.destroy();
+                } else {
+                    logResult('LanguageModel API not available', 'error');
+                }
+            } catch (error) {
+                logResult(`Prompt test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSummarization() {
+            try {
+                const text = document.getElementById('testText').value;
+                if (!text.trim()) {
+                    logResult('Please enter some text to summarize', 'error');
+                    return;
+                }
+
+                if ('Summarizer' in self) {
+                    const availability = await Summarizer.availability();
+                    if (availability === 'unavailable') {
+                        logResult('Summarizer not available', 'error');
+                        return;
+                    }
+
+                    logResult('Creating summarizer session...', 'info');
+                    
+                    const summarizer = await Summarizer.create({
+                        type: 'tl;dr',
+                        format: 'plain-text',
+                        length: 'medium'
+                    });
+
+                    logResult('Generating summary...', 'info');
+                    
+                    const summary = await summarizer.summarize(text);
+
+                    logResult(`Summary Result:<br><strong>${summary}</strong>`, 'success');
+                    
+                    summarizer.destroy();
+                } else {
+                    logResult('Summarizer API not available', 'error');
+                }
+            } catch (error) {
+                logResult(`Summarization test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run availability tests on page load
+        window.addEventListener('load', async () => {
+            logResult('Testing Chrome Built-in AI APIs...', 'info');
+            await testLanguageModel();
+            await testSummarizer();
+            await testWriter();
+        });
+    </script>
+</body>
+</html>

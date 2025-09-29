@@ -57,6 +57,7 @@
 - [ ] **Extension-Native Design**: Integrates seamlessly with Chrome browsing workflow (Content Scripts, Background Service, Side Panel/Popup)
 - [ ] **Test-Chrome-APIs Integration**: AI API usage includes mock testing, real content testing, and error handling
 - [ ] **Hackathon-Focused Scope**: Feature is completable within timeline and demo-ready for 3-minute video
+- [ ] **Debug-Native Development**: Development integrates chrome-devtools-mcp for real-time debugging and AI API monitoring
 
 ## Project Structure
 
@@ -230,4 +231,4 @@ ios/ or android/
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*
+*Based on Constitution v1.1.0 - See `.specify/memory/constitution.md`*

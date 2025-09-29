@@ -3,12 +3,26 @@
 
 describe('Chrome Built-in AI API Integration', () => {
   beforeEach(() => {
-    // Mock Chrome Built-in AI APIs
-    global.chrome.aiOriginTrial = {
-      languageModel: {
-        capabilities: jest.fn(),
-        create: jest.fn()
-      }
+    // Mock Chrome Built-in AI APIs (Standard APIs)
+    global.LanguageModel = {
+      availability: jest.fn(),
+      params: jest.fn(),
+      create: jest.fn()
+    }
+
+    global.Summarizer = {
+      availability: jest.fn(),
+      create: jest.fn()
+    }
+
+    global.Writer = {
+      availability: jest.fn(),
+      create: jest.fn()
+    }
+
+    global.Rewriter = {
+      availability: jest.fn(),
+      create: jest.fn()
     }
 
     // Mock AI session
@@ -16,43 +30,80 @@ describe('Chrome Built-in AI API Integration', () => {
       prompt: jest.fn(),
       promptStreaming: jest.fn(),
       destroy: jest.fn(),
-      clone: jest.fn()
+      clone: jest.fn(),
+      append: jest.fn()
+    }
+
+    // Mock other AI service instances
+    global.mockSummarizer = {
+      summarize: jest.fn(),
+      summarizeStreaming: jest.fn(),
+      destroy: jest.fn()
+    }
+
+    global.mockWriter = {
+      write: jest.fn(),
+      writeStreaming: jest.fn(),
+      destroy: jest.fn()
+    }
+
+    global.mockRewriter = {
+      rewrite: jest.fn(),
+      rewriteStreaming: jest.fn(),
+      destroy: jest.fn()
     }
   })
 
   describe('AI Prompt API', () => {
-    test('should check AI capabilities', async () => {
-      const mockCapabilities = {
-        available: 'readily',
+    test('should check AI availability', async () => {
+      global.LanguageModel.availability.mockResolvedValue('available')
+
+      const availability = await global.LanguageModel.availability()
+
+      expect(availability).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(availability)
+    })
+
+    test('should get AI model parameters', async () => {
+      const mockParams = {
         defaultTopK: 3,
         maxTopK: 8,
         defaultTemperature: 0.8,
         maxTemperature: 2.0
       }
 
-      global.chrome.aiOriginTrial.languageModel.capabilities.mockResolvedValue(mockCapabilities)
+      global.LanguageModel.params.mockResolvedValue(mockParams)
 
-      const capabilities = await global.chrome.aiOriginTrial.languageModel.capabilities()
+      const params = await global.LanguageModel.params()
 
-      expect(capabilities.available).toBe('readily')
-      expect(capabilities.defaultTopK).toBeGreaterThan(0)
-      expect(capabilities.maxTopK).toBeGreaterThan(capabilities.defaultTopK)
-      expect(capabilities.defaultTemperature).toBeGreaterThan(0)
-      expect(capabilities.maxTemperature).toBeGreaterThan(capabilities.defaultTemperature)
+      expect(params.defaultTopK).toBeGreaterThan(0)
+      expect(params.maxTopK).toBeGreaterThan(params.defaultTopK)
+      expect(params.defaultTemperature).toBeGreaterThan(0)
+      expect(params.maxTemperature).toBeGreaterThan(params.defaultTemperature)
     })
 
     test('should create AI session for content analysis', async () => {
-      global.chrome.aiOriginTrial.languageModel.create.mockResolvedValue(global.mockAISession)
+      global.LanguageModel.create.mockResolvedValue(global.mockAISession)
 
-      const session = await global.chrome.aiOriginTrial.languageModel.create({
-        systemPrompt: 'You are a helpful content analyzer for SmartShelf.',
+      const session = await global.LanguageModel.create({
+        initialPrompts: [
+          {
+            role: 'system',
+            content: 'You are a helpful content analyzer for SmartShelf.'
+          }
+        ],
         temperature: 0.7,
         topK: 3
       })
 
       expect(session).toBe(global.mockAISession)
-      expect(global.chrome.aiOriginTrial.languageModel.create).toHaveBeenCalledWith({
-        systemPrompt: expect.stringContaining('SmartShelf'),
+      expect(global.LanguageModel.create).toHaveBeenCalledWith({
+        initialPrompts: expect.arrayContaining([
+          expect.objectContaining({
+            role: 'system',
+            content: expect.stringContaining('SmartShelf')
+          })
+        ]),
         temperature: 0.7,
         topK: 3
       })
@@ -72,11 +123,16 @@ describe('Chrome Built-in AI API Integration', () => {
       }
 
       global.mockAISession.prompt.mockResolvedValue(JSON.stringify(mockAnalysis))
-      global.chrome.aiOriginTrial.languageModel.create.mockResolvedValue(global.mockAISession)
+      global.LanguageModel.create.mockResolvedValue(global.mockAISession)
 
       // Simulate content analysis
-      const session = await global.chrome.aiOriginTrial.languageModel.create({
-        systemPrompt: 'Analyze this content and provide summary, tags, and categories in JSON format.'
+      const session = await global.LanguageModel.create({
+        initialPrompts: [
+          {
+            role: 'system',
+            content: 'Analyze this content and provide summary, tags, and categories in JSON format.'
+          }
+        ]
       })
 
       const analysisPrompt = `
@@ -117,9 +173,9 @@ describe('Chrome Built-in AI API Integration', () => {
         }
       })
 
-      global.chrome.aiOriginTrial.languageModel.create.mockResolvedValue(global.mockAISession)
+      global.LanguageModel.create.mockResolvedValue(global.mockAISession)
 
-      const session = await global.chrome.aiOriginTrial.languageModel.create()
+      const session = await global.LanguageModel.create()
 
       let fullResponse = ''
       for await (const chunk of session.promptStreaming('Summarize this content...')) {
@@ -132,47 +188,26 @@ describe('Chrome Built-in AI API Integration', () => {
   })
 
   describe('AI Summarizer API', () => {
-    beforeEach(() => {
-      global.chrome.aiOriginTrial.summarizer = {
-        capabilities: jest.fn(),
-        create: jest.fn()
-      }
+    test('should check summarizer availability', async () => {
+      global.Summarizer.availability.mockResolvedValue('available')
 
-      global.mockSummarizer = {
-        summarize: jest.fn(),
-        destroy: jest.fn()
-      }
-    })
+      const availability = await global.Summarizer.availability()
 
-    test('should check summarizer capabilities', async () => {
-      const mockCapabilities = {
-        available: 'readily',
-        type: 'tl;dr',
-        format: 'markdown',
-        length: 'medium'
-      }
-
-      global.chrome.aiOriginTrial.summarizer.capabilities.mockResolvedValue(mockCapabilities)
-
-      const capabilities = await global.chrome.aiOriginTrial.summarizer.capabilities()
-
-      expect(capabilities.available).toBe('readily')
-      expect(capabilities.type).toBe('tl;dr')
-      expect(['plain-text', 'markdown']).toContain(capabilities.format)
-      expect(['short', 'medium', 'long']).toContain(capabilities.length)
+      expect(availability).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(availability)
     })
 
     test('should create summarizer for content', async () => {
-      global.chrome.aiOriginTrial.summarizer.create.mockResolvedValue(global.mockSummarizer)
+      global.Summarizer.create.mockResolvedValue(global.mockSummarizer)
 
-      const summarizer = await global.chrome.aiOriginTrial.summarizer.create({
+      const summarizer = await global.Summarizer.create({
         type: 'tl;dr',
         format: 'plain-text',
         length: 'medium'
       })
 
       expect(summarizer).toBe(global.mockSummarizer)
-      expect(global.chrome.aiOriginTrial.summarizer.create).toHaveBeenCalledWith({
+      expect(global.Summarizer.create).toHaveBeenCalledWith({
         type: 'tl;dr',
         format: 'plain-text',
         length: 'medium'
@@ -193,9 +228,9 @@ describe('Chrome Built-in AI API Integration', () => {
       const expectedSummary = 'React Hooks introduced in version 16.8 allow state and lifecycle management in functional components through functions like useState, useEffect, and useContext.'
 
       global.mockSummarizer.summarize.mockResolvedValue(expectedSummary)
-      global.chrome.aiOriginTrial.summarizer.create.mockResolvedValue(global.mockSummarizer)
+      global.Summarizer.create.mockResolvedValue(global.mockSummarizer)
 
-      const summarizer = await global.chrome.aiOriginTrial.summarizer.create()
+      const summarizer = await global.Summarizer.create()
       const summary = await summarizer.summarize(longContent)
 
       expect(summary).toBe(expectedSummary)
@@ -206,43 +241,22 @@ describe('Chrome Built-in AI API Integration', () => {
   })
 
   describe('AI Writer/Rewriter API', () => {
-    beforeEach(() => {
-      global.chrome.aiOriginTrial.writer = {
-        capabilities: jest.fn(),
-        create: jest.fn()
-      }
+    test('should check writer availability', async () => {
+      global.Writer.availability.mockResolvedValue('available')
 
-      global.chrome.aiOriginTrial.rewriter = {
-        capabilities: jest.fn(),
-        create: jest.fn()
-      }
+      const availability = await global.Writer.availability()
 
-      global.mockWriter = {
-        write: jest.fn(),
-        destroy: jest.fn()
-      }
-
-      global.mockRewriter = {
-        rewrite: jest.fn(),
-        destroy: jest.fn()
-      }
+      expect(availability).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(availability)
     })
 
-    test('should check writer capabilities', async () => {
-      const mockCapabilities = {
-        available: 'readily',
-        tone: 'neutral',
-        format: 'plain-text',
-        length: 'medium'
-      }
+    test('should check rewriter availability', async () => {
+      global.Rewriter.availability.mockResolvedValue('available')
 
-      global.chrome.aiOriginTrial.writer.capabilities.mockResolvedValue(mockCapabilities)
+      const availability = await global.Rewriter.availability()
 
-      const capabilities = await global.chrome.aiOriginTrial.writer.capabilities()
-
-      expect(capabilities.available).toBe('readily')
-      expect(['casual', 'neutral', 'formal']).toContain(capabilities.tone)
-      expect(['plain-text', 'markdown']).toContain(capabilities.format)
+      expect(availability).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(availability)
     })
 
     test('should rewrite content for better formatting', async () => {
@@ -250,9 +264,9 @@ describe('Chrome Built-in AI API Integration', () => {
       const rewrittenText = 'This is well-formatted text with proper punctuation and good grammar.'
 
       global.mockRewriter.rewrite.mockResolvedValue(rewrittenText)
-      global.chrome.aiOriginTrial.rewriter.create.mockResolvedValue(global.mockRewriter)
+      global.Rewriter.create.mockResolvedValue(global.mockRewriter)
 
-      const rewriter = await global.chrome.aiOriginTrial.rewriter.create({
+      const rewriter = await global.Rewriter.create({
         tone: 'neutral',
         format: 'plain-text'
       })
@@ -268,8 +282,9 @@ describe('Chrome Built-in AI API Integration', () => {
 
   describe('AI Translation API', () => {
     beforeEach(() => {
-      global.chrome.aiOriginTrial.translator = {
-        capabilities: jest.fn(),
+      global.Translator = {
+        availability: jest.fn(),
+        languagePairAvailable: jest.fn(),
         create: jest.fn()
       }
 
@@ -279,19 +294,22 @@ describe('Chrome Built-in AI API Integration', () => {
       }
     })
 
-    test('should check translation capabilities', async () => {
-      const mockCapabilities = {
-        available: 'readily',
-        languagePairAvailable: jest.fn().mockResolvedValue('readily')
-      }
+    test('should check translation availability', async () => {
+      global.Translator.availability.mockResolvedValue('available')
 
-      global.chrome.aiOriginTrial.translator.capabilities.mockResolvedValue(mockCapabilities)
+      const availability = await global.Translator.availability()
 
-      const capabilities = await global.chrome.aiOriginTrial.translator.capabilities()
-      const canTranslate = await capabilities.languagePairAvailable('en', 'es')
+      expect(availability).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(availability)
+    })
 
-      expect(capabilities.available).toBe('readily')
-      expect(canTranslate).toBe('readily')
+    test('should check language pair availability', async () => {
+      global.Translator.languagePairAvailable.mockResolvedValue('available')
+
+      const canTranslate = await global.Translator.languagePairAvailable('en', 'es')
+
+      expect(canTranslate).toBe('available')
+      expect(['available', 'downloadable', 'downloading', 'unavailable']).toContain(canTranslate)
     })
 
     test('should translate content to different languages', async () => {
@@ -299,9 +317,9 @@ describe('Chrome Built-in AI API Integration', () => {
       const spanishText = 'Bienvenido a SmartShelf - Centro de Conocimiento Personal Impulsado por IA'
 
       global.mockTranslator.translate.mockResolvedValue(spanishText)
-      global.chrome.aiOriginTrial.translator.create.mockResolvedValue(global.mockTranslator)
+      global.Translator.create.mockResolvedValue(global.mockTranslator)
 
-      const translator = await global.chrome.aiOriginTrial.translator.create({
+      const translator = await global.Translator.create({
         sourceLanguage: 'en',
         targetLanguage: 'es'
       })
@@ -316,15 +334,13 @@ describe('Chrome Built-in AI API Integration', () => {
 
   describe('AI Error Handling', () => {
     test('should handle AI API not available', async () => {
-      global.chrome.aiOriginTrial.languageModel.capabilities.mockResolvedValue({
-        available: 'no'
-      })
+      global.LanguageModel.availability.mockResolvedValue('unavailable')
 
-      const capabilities = await global.chrome.aiOriginTrial.languageModel.capabilities()
-      expect(capabilities.available).toBe('no')
+      const availability = await global.LanguageModel.availability()
+      expect(availability).toBe('unavailable')
 
       // Should fallback gracefully
-      if (capabilities.available === 'no') {
+      if (availability === 'unavailable') {
         // Fallback logic would go here
         expect(true).toBe(true) // Test passes if we can detect unavailability
       }
@@ -332,19 +348,19 @@ describe('Chrome Built-in AI API Integration', () => {
 
     test('should handle AI session creation failures', async () => {
       const error = new Error('AI session creation failed')
-      global.chrome.aiOriginTrial.languageModel.create.mockRejectedValue(error)
+      global.LanguageModel.create.mockRejectedValue(error)
 
       await expect(
-        global.chrome.aiOriginTrial.languageModel.create()
+        global.LanguageModel.create()
       ).rejects.toThrow('AI session creation failed')
     })
 
     test('should handle prompt failures gracefully', async () => {
       const error = new Error('Prompt processing failed')
       global.mockAISession.prompt.mockRejectedValue(error)
-      global.chrome.aiOriginTrial.languageModel.create.mockResolvedValue(global.mockAISession)
+      global.LanguageModel.create.mockResolvedValue(global.mockAISession)
 
-      const session = await global.chrome.aiOriginTrial.languageModel.create()
+      const session = await global.LanguageModel.create()
 
       await expect(
         session.prompt('Analyze this content')
@@ -352,12 +368,36 @@ describe('Chrome Built-in AI API Integration', () => {
     })
 
     test('should clean up AI sessions properly', async () => {
-      global.chrome.aiOriginTrial.languageModel.create.mockResolvedValue(global.mockAISession)
+      global.LanguageModel.create.mockResolvedValue(global.mockAISession)
 
-      const session = await global.chrome.aiOriginTrial.languageModel.create()
+      const session = await global.LanguageModel.create()
       session.destroy()
 
       expect(global.mockAISession.destroy).toHaveBeenCalled()
+    })
+
+    test('should handle model downloading state', async () => {
+      global.LanguageModel.availability.mockResolvedValue('downloading')
+
+      const availability = await global.LanguageModel.availability()
+      expect(availability).toBe('downloading')
+
+      // Should handle downloading state appropriately
+      if (availability === 'downloading') {
+        expect(true).toBe(true) // Test passes if we can detect downloading state
+      }
+    })
+
+    test('should handle model downloadable state', async () => {
+      global.Summarizer.availability.mockResolvedValue('downloadable')
+
+      const availability = await global.Summarizer.availability()
+      expect(availability).toBe('downloadable')
+
+      // Should trigger download with user activation
+      if (availability === 'downloadable') {
+        expect(true).toBe(true) // Test passes if we can detect downloadable state
+      }
     })
   })
 })

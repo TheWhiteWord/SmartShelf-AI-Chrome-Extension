@@ -23,12 +23,17 @@ class AIConnectionDiscoveryService {
    */
   async initialize() {
     try {
-      if ('aiOriginTrial' in chrome && chrome.aiOriginTrial && chrome.aiOriginTrial.languageModel) {
-        const capabilities = await chrome.aiOriginTrial.languageModel.capabilities()
+      if ('LanguageModel' in self) {
+        const availability = await LanguageModel.availability()
 
-        if (capabilities.available === 'readily') {
-          this.aiSession = await chrome.aiOriginTrial.languageModel.create({
-            systemPrompt: `You are an AI assistant that analyzes content relationships. Given two pieces of content, analyze their relationship and respond with valid JSON only:
+        if (availability !== 'unavailable') {
+          const params = await LanguageModel.params()
+          
+          this.aiSession = await LanguageModel.create({
+            initialPrompts: [
+              {
+                role: 'system',
+                content: `You are an AI assistant that analyzes content relationships. Given two pieces of content, analyze their relationship and respond with valid JSON only:
 
 {
   "hasConnection": boolean,
@@ -47,9 +52,11 @@ Connection types:
 - temporal: Time-based relationships (before/after, chronological)
 - causal: Cause and effect relationships
 
-Only identify meaningful connections with confidence >= 0.6. Be conservative - no connection is better than a false positive.`,
-            temperature: 0.3,
-            topK: 10
+Only identify meaningful connections with confidence >= 0.6. Be conservative - no connection is better than a false positive.`
+              }
+            ],
+            temperature: Math.min(params.defaultTemperature * 0.8, params.maxTemperature),
+            topK: params.defaultTopK
           })
 
           console.log('AI Connection Discovery service initialized')

@@ -77,43 +77,53 @@ async function initializeExtension() {
 // Initialize Chrome Built-in AI capabilities
 async function initializeAICapabilities() {
   try {
-    // Check if Chrome Built-in AI is available
-    if ('aiOriginTrial' in chrome && chrome.aiOriginTrial) {
+    // Check if Chrome Built-in AI APIs are available (new standard APIs)
+    if ('LanguageModel' in self) {
       // Check Prompt API availability
-      if (chrome.aiOriginTrial.languageModel) {
-        const capabilities = await chrome.aiOriginTrial.languageModel.capabilities()
-        console.log('AI Prompt capabilities:', capabilities)
+      const langModelAvailability = await LanguageModel.availability()
+      console.log('AI Prompt availability:', langModelAvailability)
 
-        if (capabilities.available === 'readily') {
-          aiSession = await chrome.aiOriginTrial.languageModel.create({
-            systemPrompt: `You are SmartShelf AI, a content analysis assistant. Analyze web content and provide structured insights in JSON format with:
-            - summary: Brief 1-2 sentence summary
-            - tags: Array of 3-5 relevant tags (lowercase, no spaces)
-            - categories: Array of 1-3 main categories
-            - key_points: Array of 2-4 key insights
-            Always respond with valid JSON only.`,
-            temperature: 0.7,
-            topK: 3
-          })
-          console.log('AI Prompt session initialized')
-        }
+      if (langModelAvailability !== 'unavailable') {
+        // Get model parameters
+        const params = await LanguageModel.params()
+        console.log('AI Prompt parameters:', params)
+
+        // Create Language Model session
+        aiSession = await LanguageModel.create({
+          initialPrompts: [
+            {
+              role: 'system', 
+              content: `You are SmartShelf AI, a content analysis assistant. Analyze web content and provide structured insights in JSON format with:
+              - summary: Brief 1-2 sentence summary
+              - tags: Array of 3-5 relevant tags (lowercase, no spaces)
+              - categories: Array of 1-3 main categories
+              - key_points: Array of 2-4 key insights
+              Always respond with valid JSON only.`
+            }
+          ],
+          temperature: Math.min(params.defaultTemperature * 1.2, params.maxTemperature),
+          topK: params.defaultTopK
+        })
+        console.log('AI Prompt session initialized')
       }
+    }
 
-      // Check Summarizer API availability
-      if (chrome.aiOriginTrial.summarizer) {
-        const sumCapabilities = await chrome.aiOriginTrial.summarizer.capabilities()
-        console.log('AI Summarizer capabilities:', sumCapabilities)
+    // Check Summarizer API availability
+    if ('Summarizer' in self) {
+      const summarizerAvailability = await Summarizer.availability()
+      console.log('AI Summarizer availability:', summarizerAvailability)
 
-        if (sumCapabilities.available === 'readily') {
-          summarizerSession = await chrome.aiOriginTrial.summarizer.create({
-            type: 'tl;dr',
-            format: 'plain-text',
-            length: 'medium'
-          })
-          console.log('AI Summarizer session initialized')
-        }
+      if (summarizerAvailability !== 'unavailable') {
+        summarizerSession = await Summarizer.create({
+          type: 'tl;dr',
+          format: 'plain-text',
+          length: 'medium'
+        })
+        console.log('AI Summarizer session initialized')
       }
-    } else {
+    }
+
+    if (!aiSession && !summarizerSession) {
       console.log('Chrome Built-in AI not available, using fallback processing')
     }
 
