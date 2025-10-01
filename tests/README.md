@@ -29,7 +29,8 @@ tests/
 │   │   ├── content-detection.test.js        # T071B Content type detection utilities (51/51 tests) ✅
 │   │   ├── content-quality.test.js          # T071C Content quality assessment utilities (54/54 tests) ✅
 │   │   ├── url-formatter.test.js            # T071D URL formatting utilities (70/70 tests) ✅
-│   │   └── time-formatter.test.js           # T071E Time formatting utilities (107/107 tests) ✅
+│   │   ├── time-formatter.test.js           # T071E Time formatting utilities (107/107 tests) ✅
+│   │   └── text-formatter.test.js           # T071F Text formatting utilities (125/125 tests) ✅
 │   ├── contracts/                 # API contract tests
 │   │   ├── ai-categorize.test.js  # AI categorization API tests
 │   │   ├── ai-summarize.test.js   # AI summarization API tests
@@ -72,7 +73,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
-- **Utility Functions Coverage**: **T071A, T071B, T071C, T071D, T071E COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), and time formatting (107 tests) utilities with 347/347 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, and duration formatting
+- **Utility Functions Coverage**: **T071A, T071B, T071C, T071D, T071E, T071F COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), and text formatting (125 tests) utilities with 472/472 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, and HTML stripping
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -172,7 +173,7 @@ Use the interactive test file for manual Chrome AI API verification:
 - **E2E Tests**: All critical user workflows tested
 - **Chrome AI APIs**: ✅ **ACHIEVED** - All supported APIs tested with fallbacks (Prompt, Summarizer, Writer, Rewriter)
 - **Entity Models**: ✅ **100% COMPLETE** - All 9 data models with comprehensive test coverage (325 tests)
-- **Utility Functions**: ✅ **T071A, T071B, T071C COMPLETE** - Content extraction (65 tests), content detection (51 tests), and content quality assessment (54 tests) utilities fully tested
+- **Utility Functions**: ✅ **T071A-F COMPLETE** - 6 utility modules fully tested: Content extraction (65 tests), content detection (51 tests), content quality (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests)
 - **Chrome Extension Integration**: ✅ **100% COMPLETE** - All extension functionality validated (81 tests)
 
 ## 🛠️ Testing Chrome Extension Features
@@ -532,11 +533,11 @@ Ensure all tests pass before merging changes.
 
 **Final Statistics (2025-10-01):**
 
-- **Total Test Suites**: 41 (38 fully passing, 3 Phase 3.5 in progress)
-- **Total Tests**: 1171 (1149/1171 passing - 98.1% success rate) ✅
+- **Total Test Suites**: 42 (39 fully passing, 3 Phase 3.5 in progress)
+- **Total Tests**: 1296 (1274/1296 passing - 98.3% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
-- **Utility Function Tests**: 347 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107) ✅ (T071A, T071B, T071C, T071D, T071E complete)
+- **Utility Function Tests**: 472 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125) ✅ (T071A, T071B, T071C, T071D, T071E, T071F complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -558,8 +559,9 @@ Ensure all tests pass before merging changes.
 8. **✅ Content Extraction Utilities** - T071A (100% success) with 65 comprehensive tests covering DOM parsing, metadata extraction, structured data (JSON-LD, microdata), image filtering, link deduplication, and performance testing
 9. **🎯 Content Detection Utilities** - T071B (100% success) with 51 comprehensive tests covering intelligent content type classification for 12 categories (video, document, social, research, code, documentation, blog, news, reference, shopping, article, webpage) with priority-based detection and performance optimization
 10. **🎯 Content Quality Assessment Utilities** - T071C (100% success) with 54 comprehensive tests covering quality scoring (0-100), reading time estimation, spam detection with 10+ indicators, and complete quality assessment pipeline
-11. **🔗 URL Formatting Utilities** - T071D (100% success) with 70 comprehensive tests covering formatUrl(), formatSource(), extractDomain(), and truncatePath() functions. Handles standard HTTP/HTTPS URLs, www prefix removal, long URL truncation, query parameters, hash fragments, relative URLs, invalid URLs, and edge cases (localhost, IP addresses, IDN domains)
-12. **⏰ Time Formatting Utilities** - T071E (100% success) with 107 comprehensive tests covering formatTimeAgo() (relative time: "Just now", "Xm ago", "Xh ago", "Xd ago", "Xw ago", "Xmo ago", "Xy ago"), formatDate() (custom formats with 12 tokens: YYYY, YY, MM, M, DD, D, HH, H, mm, m, ss, s), formatDuration() (milliseconds to compound durations: "1d 3h 30m"), getCurrentTimestamp(), and isValidDate(). Handles Date objects, timestamps, ISO strings, timezone support (UTC/local), edge cases (negative timestamps, very old dates, future dates, invalid inputs), and performance optimization (1000+ operations in <100ms)
+10. **🔗 URL Formatting Utilities** - T071D (100% success) with 70 comprehensive tests covering formatUrl(), formatSource(), extractDomain(), and truncatePath() functions. Handles standard HTTP/HTTPS URLs, www prefix removal, long URL truncation, query parameters, hash fragments, relative URLs, invalid URLs, and edge cases (localhost, IP addresses, IDN domains)
+11. **⏰ Time Formatting Utilities** - T071E (100% success) with 107 comprehensive tests covering formatTimeAgo() (relative time: "Just now", "Xm ago", "Xh ago", "Xd ago", "Xw ago", "Xmo ago", "Xy ago"), formatDate() (custom formats with 12 tokens: YYYY, YY, MM, M, DD, D, HH, H, mm, m, ss, s), formatDuration() (milliseconds to compound durations: "1d 3h 30m"), getCurrentTimestamp(), and isValidDate(). Handles Date objects, timestamps, ISO strings, timezone support (UTC/local), edge cases (negative timestamps, very old dates, future dates, invalid inputs), and performance optimization (1000+ operations in <100ms)
+12. **📝 Text Formatting Utilities** - T071F (100% success) with 125 comprehensive tests covering escapeHtml() (XSS prevention with HTML entity escaping: &, <, >, ", '), truncateText() (smart truncation with word boundary preservation at 85% threshold, default 100 chars), capitalizeWords() (title case conversion with hyphen/dash/apostrophe support), slugify() (URL-safe slug generation with lowercase, hyphen replacement, special char removal, accented char preservation), and stripHtml() (HTML tag removal with entity decoding: &amp;, &lt;, &gt;, &quot;, &#39;, &nbsp;, and whitespace normalization). Handles Unicode characters, emojis, CJK characters, nested HTML, edge cases (null, undefined, empty strings), and integration workflows. Production-ready for content display, URL generation, and safe HTML rendering
 13. **🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
 
 - **✅ T066 Content Processing Pipeline** (100% complete) - State machine workflow orchestration
@@ -569,7 +571,7 @@ Ensure all tests pass before merging changes.
 
 **The SmartShelf AI Chrome Extension test suite provides bulletproof validation for all functionality, ensuring reliable performance across all user scenarios and edge cases!** 🚀
 
-### **Latest Additions: Utility Functions (T071A, T071B, T071C, T071D)** (2025-10-01)
+### **Latest Additions: Utility Functions (T071A-F)** (2025-10-01)
 
 #### **T071A: Content Extraction Utilities**
 
@@ -895,6 +897,82 @@ Ensure all tests pass before merging changes.
 - **Export reports**: Custom date formatting for reports
 - **Duration tracking**: Show reading time or AI processing duration
 - **Content age indicators**: "Added 3d ago" in content cards
+
+#### **T071F: Text Formatting Utilities** 🆕
+
+**Complete text formatting utility module:**
+
+- ✅ **125/125 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/text-formatter.js` (187 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/text-formatter.test.js` (1016 lines)
+
+**Functions tested:**
+
+1. **escapeHtml()** - HTML entity escaping for XSS prevention (17 tests)
+   - Escapes: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`, `"` → `&quot;`, `'` → `&#39;`
+   - Handles null/undefined/empty strings gracefully
+   - Preserves Unicode characters and emojis
+   - Protects against XSS attacks
+2. **truncateText()** - Smart text truncation with ellipsis (18 tests)
+   - Default maxLength: 100 characters
+   - Word boundary preservation (85% threshold)
+   - Handles very long text, Unicode, emojis
+   - Edge cases: null, undefined, zero/negative maxLength
+3. **capitalizeWords()** - Title case conversion (22 tests)
+   - Capitalizes first letter of each word
+   - Handles hyphens, apostrophes, en-dash, em-dash
+   - Preserves multiple spaces and punctuation
+   - Supports Unicode and CJK characters
+4. **slugify()** - URL-safe slug generation (28 tests)
+   - Converts to lowercase
+   - Replaces spaces/underscores with hyphens
+   - Removes special characters
+   - Preserves accented characters (café, résumé, über)
+   - Cleans multiple/leading/trailing hyphens
+5. **stripHtml()** - HTML tag removal with entity decoding (36 tests)
+   - Removes all HTML tags (adds space for word boundaries)
+   - Decodes entities: `&amp;`, `&lt;`, `&gt;`, `&quot;`, `&#39;`, `&nbsp;`
+   - Normalizes whitespace
+   - Handles nested tags, attributes, self-closing tags
+6. **Integration tests** (4 tests)
+   - Combined function workflows
+   - HTML → escape → truncate → display
+   - HTML → strip → slugify → URL
+
+**Test coverage:**
+
+- ✅ Special characters: <, >, &, ", ' in HTML escaping
+- ✅ Unicode characters and emojis in all functions
+- ✅ Long text truncation with word boundary preservation
+- ✅ Various capitalization inputs (lowercase, UPPERCASE, MiXeD)
+- ✅ Special characters in slugs (spaces, punctuation, accents)
+- ✅ Nested HTML tags with attributes
+- ✅ HTML entities decoding
+- ✅ Edge cases: empty strings, null, undefined, non-string inputs
+- ✅ Integration scenarios: complete workflows
+
+**Technical highlights:**
+
+- XSS prevention with HTML entity escaping
+- Smart word boundary preservation in truncation (85% threshold)
+- Title case with punctuation awareness (hyphens, apostrophes, dashes)
+- URL-safe slug generation with Unicode support
+- HTML tag removal with space preservation for word boundaries
+- Entity decoding for common HTML entities
+- Whitespace normalization
+- Comprehensive null/undefined handling
+- Production-ready code quality with full test coverage
+- Integration-ready for content display and URL generation
+
+**Use cases in SmartShelf:**
+
+- **Content display**: Safely display user content with HTML escaping
+- **Search results**: Truncate long titles and descriptions with ellipsis
+- **URL generation**: Create SEO-friendly slugs for content organization
+- **Content extraction**: Convert HTML content to plain text for AI processing
+- **UI formatting**: Proper title case for headings and labels
+- **Security**: Prevent XSS attacks with HTML escaping
+- **Data processing**: Clean and format text for storage and display
 
 ---
 

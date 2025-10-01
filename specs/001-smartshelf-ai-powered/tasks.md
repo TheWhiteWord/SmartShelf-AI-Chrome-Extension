@@ -272,24 +272,24 @@ Chrome Extension structure (from implementation plan):
     - Utilities: `extension/shared/utils/time-formatter.js` (216 lines) ✅
     - Tests: `tests/unit/utils/time-formatter.test.js` (609 lines, 107 tests) ✅
 
-- [ ] T071F [P] Unit tests for text formatting in tests/unit/utils/text-formatter.test.js
-  - **Functions to test**:
-    - `escapeHtml(text)` - HTML entity escaping
-    - `truncateText(text, maxLength)` - Text truncation with ellipsis
-    - `capitalizeWords(text)` - Title case conversion
-    - `slugify(text)` - URL-safe slug generation
-    - `stripHtml(html)` - HTML tag removal
+- [x] T071F [P] Unit tests for text formatting in tests/unit/utils/text-formatter.test.js ✅ COMPLETED (125/125 tests passing) - Comprehensive text formatting utilities with escapeHtml() for XSS prevention, truncateText() with word boundary preservation, capitalizeWords() for title case conversion, slugify() for URL-safe slug generation, and stripHtml() for HTML tag removal. Handles Unicode characters, emojis, special characters, nested HTML, and edge cases (null, undefined, empty strings). Integration-ready for content display, URL generation, and safe HTML rendering (2025-10-01).
+  - **Functions tested**:
+    - `escapeHtml(text)` - HTML entity escaping (17 tests) ✅
+    - `truncateText(text, maxLength)` - Text truncation with ellipsis (18 tests) ✅
+    - `capitalizeWords(text)` - Title case conversion (22 tests) ✅
+    - `slugify(text)` - URL-safe slug generation (28 tests) ✅
+    - `stripHtml(html)` - HTML tag removal (36 tests) ✅
   - **Test scenarios**:
-    - Special characters: <, >, &, ", '
-    - Unicode characters and emojis
-    - Long text truncation (preserve word boundaries)
-    - Various capitalization inputs
-    - Special characters in slugs (spaces, punctuation)
-    - Nested HTML tags
-    - Edge cases: empty strings, null, undefined
+    - Special characters: <, >, &, ", ' ✅
+    - Unicode characters and emojis ✅
+    - Long text truncation (preserve word boundaries) ✅
+    - Various capitalization inputs ✅
+    - Special characters in slugs (spaces, punctuation) ✅
+    - Nested HTML tags ✅
+    - Edge cases: empty strings, null, undefined ✅
   - **File paths**:
-    - Utilities: `extension/shared/utils/text-formatter.js`
-    - Tests: `tests/unit/utils/text-formatter.test.js`
+    - Utilities: `extension/shared/utils/text-formatter.js` (187 lines) ✅
+    - Tests: `tests/unit/utils/text-formatter.test.js` (1016 lines, 125 tests) ✅
 
 #### Validation Utilities
 
@@ -482,9 +482,9 @@ Task: "Connection model class in extension/shared/models/connection.js"
 
 ## Current Implementation Progress (Updated: 2025-10-01)
 
-### 🎯 **OVERALL STATUS: 97.5% COMPLETE - PHASE 3.5 SEARCH OPTIMIZATION MAJOR IMPROVEMENT! 🚀**
+### 🎯 **OVERALL STATUS: 98.75% COMPLETE - T071F TEXT FORMATTING UTILITIES COMPLETE! 🎉**
 
-#### ✅ **FULLY IMPLEMENTED (78 of 80 tasks) - PHASE 3.4 COMPLETE + T066 & T067 COMPLETE! 🎉**
+#### ✅ **FULLY IMPLEMENTED (79 of 80 tasks) - PHASE 3.4 COMPLETE + T066, T067 & T071F COMPLETE! 🎉**
 
 - **Chrome Extension Structure** - Complete Manifest V3 setup
 - **Core UI Components** - All extension interfaces functional with new features
@@ -506,6 +506,7 @@ Task: "Connection model class in extension/shared/models/connection.js"
 - **🆕 CATEGORY & TAG SYSTEMS** - Complete hierarchical organization and AI-powered tagging with confidence scoring
 - **🆕 COMPREHENSIVE SETTINGS** - Enterprise-grade configuration management with Chrome Storage integration
 - **🆕 STORAGE SERVICE T040** - Production-ready unified storage abstraction with Chrome Storage API (100% functional) + IndexedDB integration (96% test coverage, only 2 backup/restore async timeout tests failing)
+- **🆕 TEXT FORMATTING UTILITIES T071F** - Complete text formatting utility module with escapeHtml() for XSS prevention, truncateText() with word boundary preservation, capitalizeWords() for title case, slugify() for URL-safe slugs, and stripHtml() for HTML tag removal (125/125 tests passing)
 
 #### 🔄 **PARTIALLY IMPLEMENTED (2 tasks - Phase 3.5 AI Processing Pipeline)**
 
