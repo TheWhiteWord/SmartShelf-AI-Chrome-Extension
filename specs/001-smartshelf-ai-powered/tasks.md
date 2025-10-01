@@ -154,7 +154,239 @@ Chrome Extension structure (from implementation plan):
 
 ## Phase 3.6: Polish & Performance
 
-- [ ] T071 [P] Unit tests for utility functions in tests/unit/utils/
+### Utility Function Testing (T071)
+
+**Context**: The codebase contains numerous utility/helper functions scattered across content-script.js, popup.js, sidepanel.js, service-worker.js, and model classes. These functions need comprehensive unit tests to ensure reliability and facilitate refactoring.
+
+**Strategy**:
+
+1. **Extract & Consolidate** - Move reusable utility functions to dedicated modules in `extension/shared/utils/`
+2. **Test-Driven** - Write comprehensive unit tests following established TDD patterns
+3. **Categories** - Organize utilities by function: content processing, formatting, validation, security
+
+#### Content Processing Utilities
+
+- [x] T071A [P] Unit tests for content extraction utilities in tests/unit/utils/content-extraction.test.js ✅ COMPLETED (65/65 tests passing) - Comprehensive test suite covering all content extraction functions with edge cases, error handling, and performance testing. Utilities extracted to dedicated module for reusability.
+  - **Functions to test**:
+    - `extractMainContent(document)` - DOM content extraction with element filtering ✅
+    - `extractMetadata(document)` - Meta tag parsing (OG, Twitter, Article tags) ✅
+    - `extractStructuredData(document)` - JSON-LD and microdata extraction ✅
+    - `extractMicrodataProperties(element)` - Microdata property parsing ✅
+    - `extractImages(document)` - Image extraction with size/alt filtering ✅
+    - `extractLinks(document)` - Link extraction and deduplication ✅
+  - **Test scenarios**:
+    - Valid HTML documents with various meta tags ✅
+    - Missing or malformed metadata ✅
+    - Nested microdata structures ✅
+    - Edge cases: empty documents, script/style content, broken HTML ✅
+    - Performance: large documents (10k+ elements) ✅
+  - **File paths**:
+    - Utilities: `extension/shared/utils/content-extraction.js` ✅
+    - Tests: `tests/unit/utils/content-extraction.test.js` ✅
+
+- [ ] T071B [P] Unit tests for content type detection in tests/unit/utils/content-detection.test.js
+  - **Functions to test**:
+    - `detectContentType(url, hostname, content)` - Content type classification
+    - `detectVideoContent(url, hostname)` - Video platform detection
+    - `detectDocumentType(url, contentType)` - Document format detection
+    - `detectSocialMedia(hostname)` - Social media platform detection
+    - `detectResearchContent(hostname, content)` - Academic/research detection
+  - **Test scenarios**:
+    - YouTube, Vimeo, Dailymotion URLs
+    - PDF, DOC, image file extensions
+    - Twitter/X, LinkedIn, Facebook URLs
+    - ArXiv, PubMed, Google Scholar URLs
+    - GitHub repositories, documentation sites
+    - Blog platforms (Medium, Substack)
+    - News sites (CNN, BBC, Reuters)
+    - Generic articles and webpages
+    - Edge cases: localhost, file://, chrome:// URLs
+  - **File paths**:
+    - Utilities: `extension/shared/utils/content-detection.js`
+    - Tests: `tests/unit/utils/content-detection.test.js`
+
+- [ ] T071C [P] Unit tests for content quality assessment in tests/unit/utils/content-quality.test.js
+  - **Functions to test**:
+    - `assessContentQuality(pageData)` - Quality scoring (0-100)
+    - `estimateReadingTime(content)` - Reading time calculation
+    - `calculateQualityScore(indicators)` - Score calculation
+    - `detectSpamContent(content)` - Spam detection
+  - **Test scenarios**:
+    - High-quality articles (excellent: 80-100)
+    - Medium-quality content (good: 60-79, fair: 40-59)
+    - Low-quality content (poor: <40)
+    - Spam/promotional content detection
+    - Reading time: short (<1 min), medium (1-10 min), long (>10 min)
+    - Edge cases: empty content, very long content (100k+ words)
+  - **File paths**:
+    - Utilities: `extension/shared/utils/content-quality.js`
+    - Tests: `tests/unit/utils/content-quality.test.js`
+
+#### Formatting Utilities
+
+- [ ] T071D [P] Unit tests for URL formatting in tests/unit/utils/url-formatter.test.js
+  - **Functions to test**:
+    - `formatUrl(url)` - URL shortening for display
+    - `formatSource(url)` - Extract domain name
+    - `extractDomain(url)` - Domain extraction
+    - `truncatePath(path, maxLength)` - Path truncation
+  - **Test scenarios**:
+    - Standard HTTP/HTTPS URLs
+    - URLs with www prefix (should be removed)
+    - Long URLs (>50 chars) - truncation
+    - URLs with query parameters
+    - URLs with hash fragments
+    - Relative URLs, invalid URLs
+    - Edge cases: localhost, IP addresses, IDN domains
+  - **File paths**:
+    - Utilities: `extension/shared/utils/url-formatter.js`
+    - Tests: `tests/unit/utils/url-formatter.test.js`
+
+- [ ] T071E [P] Unit tests for time formatting in tests/unit/utils/time-formatter.test.js
+  - **Functions to test**:
+    - `formatTimeAgo(timestamp)` - Relative time formatting
+    - `formatDate(date, format)` - Date formatting
+    - `formatDuration(milliseconds)` - Duration formatting
+  - **Test scenarios**:
+    - Time ranges: "Just now", "Xm ago", "Xh ago", "Xd ago"
+    - Date objects, timestamps, ISO strings
+    - Future dates (should handle gracefully)
+    - Invalid dates
+    - Timezone handling
+    - Edge cases: negative timestamps, very old dates
+  - **File paths**:
+    - Utilities: `extension/shared/utils/time-formatter.js`
+    - Tests: `tests/unit/utils/time-formatter.test.js`
+
+- [ ] T071F [P] Unit tests for text formatting in tests/unit/utils/text-formatter.test.js
+  - **Functions to test**:
+    - `escapeHtml(text)` - HTML entity escaping
+    - `truncateText(text, maxLength)` - Text truncation with ellipsis
+    - `capitalizeWords(text)` - Title case conversion
+    - `slugify(text)` - URL-safe slug generation
+    - `stripHtml(html)` - HTML tag removal
+  - **Test scenarios**:
+    - Special characters: <, >, &, ", '
+    - Unicode characters and emojis
+    - Long text truncation (preserve word boundaries)
+    - Various capitalization inputs
+    - Special characters in slugs (spaces, punctuation)
+    - Nested HTML tags
+    - Edge cases: empty strings, null, undefined
+  - **File paths**:
+    - Utilities: `extension/shared/utils/text-formatter.js`
+    - Tests: `tests/unit/utils/text-formatter.test.js`
+
+#### Validation Utilities
+
+- [ ] T071G [P] Unit tests for validation functions in tests/unit/utils/validation.test.js
+  - **Functions to test**:
+    - `validateUrl(url)` - URL validation (RFC 3986)
+    - `validateEmail(email)` - Email validation
+    - `validateHexColor(color)` - Hex color format (#RGB or #RRGGBB)
+    - `validateUUID(uuid)` - UUID v4 validation
+    - `validateISBN(isbn)` - ISBN-10/13 validation
+    - `validateDateFormat(date)` - ISO 8601 date validation
+  - **Test scenarios**:
+    - Valid URLs: http, https, ftp, file://
+    - Invalid URLs: missing protocol, malformed
+    - Valid emails: standard formats
+    - Invalid emails: missing @, invalid domains
+    - Valid hex colors: #RGB, #RRGGBB (case-insensitive)
+    - Invalid colors: missing #, invalid chars, wrong length
+    - Valid UUIDs: proper v4 format
+    - Invalid UUIDs: wrong version, wrong format
+    - Valid ISBNs: ISBN-10, ISBN-13, with/without hyphens
+    - Invalid ISBNs: wrong length, invalid check digits
+    - Valid dates: ISO 8601 formats
+    - Invalid dates: malformed, impossible dates
+  - **File paths**:
+    - Utilities: `extension/shared/utils/validation.js`
+    - Tests: `tests/unit/utils/validation.test.js`
+
+#### Security Utilities
+
+- [ ] T071H [P] Unit tests for security functions in tests/unit/utils/security.test.js
+  - **Functions to test**:
+    - `generateUUID()` - UUID v4 generation
+    - `generateSecureToken(length)` - Cryptographically secure token
+    - `hashToken(token)` - Token hashing (simple checksum)
+    - `sanitizeInput(input)` - Input sanitization
+    - `validateTokenFormat(token)` - Token format validation
+  - **Test scenarios**:
+    - UUID generation: proper format, uniqueness (1000+ samples)
+    - Token generation: length validation, character set, entropy
+    - Token hashing: consistency, collision resistance (basic)
+    - Input sanitization: XSS prevention, SQL injection patterns
+    - Token validation: valid formats, invalid formats
+    - Edge cases: very long inputs, binary data, null bytes
+  - **File paths**:
+    - Utilities: `extension/shared/utils/security.js`
+    - Tests: `tests/unit/utils/security.test.js`
+
+#### DOM & Browser Utilities
+
+- [ ] T071I [P] Unit tests for DOM utilities in tests/unit/utils/dom-helpers.test.js
+  - **Functions to test**:
+    - `querySelector(selector)` - Safe querySelector with fallback
+    - `querySelectorAll(selector)` - Safe querySelectorAll wrapper
+    - `removeElements(root, selectors)` - Batch element removal
+    - `getTextContent(element)` - Clean text extraction
+    - `createElementFromHTML(html)` - Safe HTML parsing
+  - **Test scenarios**:
+    - Valid CSS selectors
+    - Invalid selectors (should not throw)
+    - Element removal: single/multiple selectors
+    - Text extraction: nested elements, whitespace handling
+    - HTML parsing: safe vs unsafe content
+    - Edge cases: null elements, disconnected nodes
+  - **File paths**:
+    - Utilities: `extension/shared/utils/dom-helpers.js`
+    - Tests: `tests/unit/utils/dom-helpers.test.js`
+
+#### Performance & Data Processing Utilities
+
+- [ ] T071J [P] Unit tests for data processing utilities in tests/unit/utils/data-processing.test.js
+  - **Functions to test**:
+    - `debounce(fn, delay)` - Debounce function execution
+    - `throttle(fn, limit)` - Throttle function execution
+    - `chunk(array, size)` - Array chunking
+    - `deduplicate(array, key)` - Array deduplication
+    - `deepClone(obj)` - Deep object cloning
+    - `deepMerge(target, source)` - Deep object merging
+  - **Test scenarios**:
+    - Debounce: rapid calls, delayed execution
+    - Throttle: rate limiting, immediate first call
+    - Chunking: various sizes, edge cases (empty, size > length)
+    - Deduplication: primitives, objects by key
+    - Deep clone: nested objects, arrays, dates, null values
+    - Deep merge: nested objects, array handling, null values
+    - Edge cases: circular references, large arrays (10k+ items)
+  - **File paths**:
+    - Utilities: `extension/shared/utils/data-processing.js`
+    - Tests: `tests/unit/utils/data-processing.test.js`
+
+#### Error Handling Utilities
+
+- [ ] T071K [P] Unit tests for error handling utilities in tests/unit/utils/error-handling.test.js
+  - **Functions to test**:
+    - `createError(message, code, details)` - Custom error creation
+    - `isNetworkError(error)` - Network error detection
+    - `isAuthError(error)` - Authentication error detection
+    - `formatErrorMessage(error)` - User-friendly error formatting
+    - `retryOperation(fn, options)` - Retry logic with exponential backoff
+  - **Test scenarios**:
+    - Error creation: message, code, stack trace
+    - Error type detection: network, auth, validation
+    - Error message formatting: technical vs user-friendly
+    - Retry logic: success on nth attempt, max retries, backoff delays
+    - Edge cases: non-Error objects, missing properties
+  - **File paths**:
+    - Utilities: `extension/shared/utils/error-handling.js`
+    - Tests: `tests/unit/utils/error-handling.test.js`
+
+### Performance Testing
+
 - [ ] T072 [P] Performance tests for AI processing pipeline in tests/performance/test-ai-performance.js
 - [ ] T073 [P] Performance tests for search with large collections in tests/performance/test-search-performance.js
 - [ ] T074 [P] E2E Chrome Extension tests using Puppeteer in tests/e2e/test-extension-workflow.js
@@ -283,12 +515,12 @@ Task: "Connection model class in extension/shared/models/connection.js"
 
 **Completed Features**:
 
-- ✅ Event handling compatibility (.on() wrapper for EventTarget)
-- ✅ Retry logic with exponential backoff and jitter
-- ✅ Dead letter queue for permanent failures
-- ✅ Storage persistence for service worker restarts
-- ✅ Concurrent processing with configurable limits
-- ✅ Progress tracking and comprehensive statistics
+- Event handling compatibility (.on() wrapper for EventTarget)
+- Retry logic with exponential backoff and jitter
+- Dead letter queue for permanent failures
+- Storage persistence for service worker restarts
+- Concurrent processing with configurable limits
+- Progress tracking and comprehensive statistics
 
 **Refinement Needed** (T069, T070):
 

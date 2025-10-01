@@ -24,6 +24,8 @@ tests/
 │   │   ├── ai-processing-queue.test.js      # T067 AI Queue tests (20/20 tests) ✅
 │   │   ├── search-index-optimizer.test.js   # T069 Search Optimizer tests (14/20 tests) ⚡
 │   │   └── ai-error-handler.test.js         # T070 Error Handler tests (8/22 tests) ⚡
+│   ├── utils/                     # Utility function tests
+│   │   └── content-extraction.test.js       # T071A Content extraction utilities (65/65 tests)✅
 │   ├── contracts/                 # API contract tests
 │   │   ├── ai-categorize.test.js  # AI categorization API tests
 │   │   ├── ai-summarize.test.js   # AI summarization API tests
@@ -66,6 +68,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
+- **Utility Functions Coverage**: **T071A COMPLETE** - Content extraction utilities with 65/65 tests (100% success) covering DOM parsing, metadata extraction, structured data, images, and links
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -165,6 +168,7 @@ Use the interactive test file for manual Chrome AI API verification:
 - **E2E Tests**: All critical user workflows tested
 - **Chrome AI APIs**: ✅ **ACHIEVED** - All supported APIs tested with fallbacks (Prompt, Summarizer, Writer, Rewriter)
 - **Entity Models**: ✅ **100% COMPLETE** - All 9 data models with comprehensive test coverage (325 tests)
+- **Utility Functions**: ✅ **T071A COMPLETE** - Content extraction utilities fully tested (65 tests)
 - **Chrome Extension Integration**: ✅ **100% COMPLETE** - All extension functionality validated (81 tests)
 
 ## 🛠️ Testing Chrome Extension Features
@@ -223,6 +227,41 @@ describe('SearchIndex Model', () => {
   
   test('should calculate search relevance scores', async () => {
     // Test search ranking algorithms
+  })
+})
+```
+
+### Content Extraction Utilities Testing (T071A)
+
+```javascript
+// Test DOM content extraction with filtering
+describe('Content Extraction Utilities', () => {
+  test('should extract main content from article elements', () => {
+    // Test content extraction with element filtering
+  })
+  
+  test('should extract metadata (OG, Twitter, Article tags)', () => {
+    // Test comprehensive meta tag parsing
+  })
+  
+  test('should extract structured data (JSON-LD, microdata)', () => {
+    // Test structured data extraction and parsing
+  })
+  
+  test('should extract images with size and alt filtering', () => {
+    // Test image extraction with dimension validation
+  })
+  
+  test('should extract and deduplicate links', () => {
+    // Test link extraction with deduplication
+  })
+  
+  test('should handle edge cases (empty documents, broken HTML)', () => {
+    // Test robustness and error handling
+  })
+  
+  test('should perform efficiently on large documents (10k+ elements)', () => {
+    // Test performance on large HTML documents
   })
 })
 ```
@@ -426,10 +465,11 @@ Ensure all tests pass before merging changes.
 
 **Final Statistics (2025-10-01):**
 
-- **Total Test Suites**: 35 (31 fully passing, 4 Phase 3.5 in progress)
-- **Total Tests**: 783 (730/783 passing - 93% success rate) ✅
+- **Total Test Suites**: 36 (32 fully passing, 4 Phase 3.5 in progress)
+- **Total Tests**: 848 (795/848 passing - 94% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
+- **Utility Function Tests**: 65 tests (Content Extraction: 65) ✅ (T071A complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -448,13 +488,45 @@ Ensure all tests pass before merging changes.
 5. **🛡️ Edge Case & Error Handling** - Comprehensive error scenario coverage
 6. **💾 Complete Storage Architecture** - T040 Storage Service (96% success) + T041 Content Repository (100% success) + T042 Search Service (100% success) with full CRUD operations, physical item support, advanced querying, and natural language search
 7. **🧠 Complete AI Services Architecture** - T046 AI Writer Service (100% success) with insights generation, notes enhancement, content analysis tools, and Chrome Built-in AI integration
-8. **🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
+8. **� Content Extraction Utilities** - T071A (100% success) with 65 comprehensive tests covering DOM parsing, metadata extraction, structured data (JSON-LD, microdata), image filtering, link deduplication, and performance testing
+9. **�🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
    - **✅ T066 Content Processing Pipeline** (100% complete) - State machine workflow orchestration
    - **✅ T067 AI Processing Queue** (100% complete) - Priority-based background processing with DLQ
    - **⚡ T069 Search Index Optimizer** (70% complete) - Batch processing for 10k+ items
    - **⚡ T070 AI Error Handler** (36% complete) - Retry mechanisms with circuit breakers
 
 **The SmartShelf AI Chrome Extension test suite provides bulletproof validation for all functionality, ensuring reliable performance across all user scenarios and edge cases!** 🚀
+
+### **Latest Addition: T071A Content Extraction Utilities** (2025-10-01)
+
+**Complete utility module extraction and testing:**
+
+- ✅ **65/65 tests passing** (100% success rate)
+- ✅ **Extracted utilities module**: `extension/shared/utils/content-extraction.js` (322 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/content-extraction.test.js` (1107 lines)
+
+**Functions tested:**
+1. **extractMainContent()** - DOM content extraction with element filtering (15 tests)
+2. **extractMetadata()** - Meta tag parsing (OG, Twitter, Article tags) (10 tests)
+3. **extractStructuredData()** - JSON-LD and microdata extraction (9 tests)
+4. **extractMicrodataProperties()** - Microdata property parsing (9 tests)
+5. **extractImages()** - Image extraction with size/alt filtering (10 tests)
+6. **extractLinks()** - Link extraction and deduplication (12 tests)
+
+**Test coverage:**
+- ✅ Valid HTML documents with various meta tags
+- ✅ Missing or malformed metadata
+- ✅ Nested microdata structures
+- ✅ Edge cases: empty documents, script/style content, broken HTML
+- ✅ Performance: large documents (10k+ elements, <1s execution)
+- ✅ JSDOM compatibility (width/height attribute fallback for testing)
+- ✅ Null/undefined input handling
+
+**Technical highlights:**
+- Solved JSDOM limitations (naturalWidth/naturalHeight read-only)
+- Implemented intelligent fallback for testing environment
+- Comprehensive error handling and edge case coverage
+- Production-ready code quality with full test coverage
 
 ---
 
