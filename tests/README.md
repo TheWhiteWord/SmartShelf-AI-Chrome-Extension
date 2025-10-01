@@ -73,7 +73,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
-- **Utility Functions Coverage**: **T071A, T071B, T071C, T071D, T071E, T071F, T071G COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), and validation utilities (144 tests) with 616/616 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, and comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats)
+- **Utility Functions Coverage**: **T071A-H COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), validation utilities (144 tests), and security utilities (116 tests) with 732/732 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats), cryptographic token generation, UUID v4 generation, token hashing, XSS/SQL injection prevention, and token format validation
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -1063,6 +1063,142 @@ Ensure all tests pass before merging changes.
 - **Date validation**: Validate date inputs in search filters and content metadata
 - **Form validation**: Comprehensive validation for user inputs across extension
 - **Data sanitization**: Ensure data quality before storage operations
+
+#### **T071H: Security Utilities** 🆕
+
+**Complete security utility module:**
+
+- ✅ **116/116 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/security.js` (199 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/security.test.js` (1052 lines)
+
+**Functions tested:**
+
+1. **generateUUID()** - UUID v4 generation (9 tests)
+   - Generates RFC 4122 compliant UUID v4 format
+   - Proper version digit (4) and variant bits (8, 9, a, b)
+   - 36 characters with hyphens in correct positions
+   - High uniqueness (1000+ samples tested, 100% unique)
+2. **generateSecureToken()** - Cryptographically secure token generation (29 tests)
+   - Uses crypto.getRandomValues() with Math.random() fallback
+   - Configurable length (1-1024 characters)
+   - Alphanumeric character set (A-Z, a-z, 0-9)
+   - High entropy and uniqueness (1000+ samples, 100% unique)
+   - Performance: 1000 tokens in <200ms
+3. **hashToken()** - Simple checksum hashing with DJB2 algorithm (19 tests)
+   - Generates 8-character hexadecimal hash
+   - Consistent output for same input
+   - Basic collision resistance (95%+ uniqueness for 100 tokens)
+   - Handles Unicode, emojis, special characters
+   - Performance: 1000 hashes in <50ms
+4. **sanitizeInput()** - XSS and SQL injection prevention (33 tests)
+   - Removes HTML tags (valid tag names only, preserves comparison operators like "< 100 >")
+   - Escapes HTML entities (&, <, >, ", ')
+   - Removes SQL keywords (SELECT, INSERT, UPDATE, DELETE, DROP, UNION, etc.)
+   - Removes SQL comments (-- and /\* \*/)
+   - Removes JavaScript event handlers (onclick, onerror, etc.)
+   - Removes dangerous protocols (javascript:, data:)
+   - Removes null bytes
+   - Normalizes whitespace
+   - Limits length (10,000 characters max)
+   - Performance: 1000 sanitizations in <500ms
+5. **validateTokenFormat()** - Token format validation (22 tests)
+   - UUID v4 format validation (proper version and variant)
+   - Prefixed token validation (sk-, api-, ghp_, etc.)
+   - Simple alphanumeric token validation (16+ characters)
+   - Rejects UUIDs without hyphens (32-char hex strings)
+   - Performance: 1000 validations in <50ms
+
+**Test coverage:**
+
+- ✅ UUID format validation: version 4, variant bits, hyphen positions, uniqueness (1000+ samples)
+- ✅ Token generation: length validation (1-1024), character set (A-Z, a-z, 0-9), entropy, uniqueness
+- ✅ Hash consistency: same input produces same hash, different inputs produce different hashes
+- ✅ XSS prevention: script tags, event handlers, javascript:/data: protocols, nested attacks, real-world payloads
+- ✅ SQL injection prevention: SELECT/INSERT/UPDATE/DELETE/DROP/UNION, SQL comments (-- and /\* \*/), OR/AND patterns
+- ✅ Input normalization: null bytes, whitespace, newlines/tabs
+- ✅ Edge cases: null/undefined/empty strings, non-string inputs, very long inputs (10k+ chars)
+- ✅ Unicode/emoji support: café, résumé, 👋, 🌍
+- ✅ Real-world attacks: image onerror, SVG onload, iframe src, form action XSS
+- ✅ Performance: 1000+ operations in <500ms across all functions
+- ✅ Integration: complete security workflows (generate → validate → hash → sanitize)
+
+**Security features:**
+
+| Feature | Implementation | Testing |
+| --- | --- | --- |
+| **UUID Generation** | RFC 4122 v4 with Math.random() | Format, version, variant, uniqueness (1000+ samples) ✅ |
+| **Secure Tokens** | crypto.getRandomValues() + fallback | Length, character set, entropy, uniqueness ✅ |
+| **Token Hashing** | DJB2 algorithm (32-bit) | Consistency, collision resistance (95%+) ✅ |
+| **XSS Prevention** | HTML tag removal + entity escaping | Script tags, event handlers, protocols, nested attacks ✅ |
+| **SQL Injection** | Keyword removal + comment stripping | SELECT/INSERT/UPDATE/DELETE, comments, OR/AND ✅ |
+| **Input Sanitization** | Comprehensive pattern matching | Real-world attack vectors, Unicode, edge cases ✅ |
+| **Token Validation** | Multi-pattern matching | UUID v4, prefixed tokens, alphanumeric ✅ |
+
+**Real-world XSS payloads tested:**
+
+```javascript
+// Image onerror XSS
+'<img src=x onerror=alert(1)>' // ✅ Sanitized
+
+// SVG XSS
+'<svg/onload=alert(1)>' // ✅ Sanitized
+
+// Iframe XSS
+'<iframe src="javascript:alert(1)"></iframe>' // ✅ Sanitized
+
+// Form action XSS
+'<form action="javascript:alert(1)"><button>Submit</button></form>' // ✅ Sanitized
+
+// Nested script tags
+'<scr<script>ipt>alert(1)</scr</script>ipt>' // ✅ Sanitized
+```
+
+**SQL injection patterns tested:**
+
+```javascript
+// SELECT statement
+"test'; SELECT * FROM users; --" // ✅ Sanitized
+
+// INSERT statement
+"test'; INSERT INTO users VALUES ('admin', 'pass'); --" // ✅ Sanitized
+
+// DROP statement
+"test'; DROP TABLE users; --" // ✅ Sanitized
+
+// UNION attack
+"test' UNION SELECT * FROM passwords --" // ✅ Sanitized
+
+// OR/AND with quotes
+"test' OR '1'='1" // ✅ Sanitized
+
+// SQL comments
+"test' OR 1=1 --" // ✅ Sanitized
+"test /\* comment \*/ OR 1=1" // ✅ Sanitized
+```
+
+**Technical highlights:**
+
+- **UUID v4 generation**: RFC 4122 compliant with proper version (4) and variant (8-b) bits
+- **Cryptographic tokens**: Uses Web Crypto API (crypto.getRandomValues()) with graceful fallback
+- **DJB2 hashing**: Fast 32-bit hash algorithm with good distribution for checksums
+- **Smart HTML tag detection**: Matches valid tag names only (preserves "< 100 >" comparisons)
+- **Order of operations**: SQL prevention → HTML tag removal → entity escaping (prevents semicolon removal from entities)
+- **Comprehensive sanitization**: Multi-layer security (tags, entities, SQL, JavaScript, protocols)
+- **Performance optimized**: <500ms for 1000 sanitizations, <200ms for 1000 tokens
+- **Production-ready**: Full test coverage, edge case handling, real-world attack prevention
+- **Integration-ready**: Works seamlessly with API tokens, content storage, user inputs
+
+**Use cases in SmartShelf:**
+
+- **UUID generation**: Unique IDs for content items, collections, connections, categories
+- **Secure tokens**: API token generation with crypto.getRandomValues() for authentication
+- **Token hashing**: Simple checksum validation for token verification (not cryptographic)
+- **Input sanitization**: User content, notes, descriptions, search queries (XSS/SQL prevention)
+- **Token validation**: Validate API tokens, connection IDs, external integrations
+- **Content security**: Sanitize user-generated content before display or storage
+- **API security**: Validate and sanitize API inputs, generate secure access tokens
+- **Form validation**: Combined with validation utilities for comprehensive input checking
 
 ---
 

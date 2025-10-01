@@ -320,23 +320,26 @@ Chrome Extension structure (from implementation plan):
 
 #### Security Utilities
 
-- [ ] T071H [P] Unit tests for security functions in tests/unit/utils/security.test.js
-  - **Functions to test**:
-    - `generateUUID()` - UUID v4 generation
-    - `generateSecureToken(length)` - Cryptographically secure token
-    - `hashToken(token)` - Token hashing (simple checksum)
-    - `sanitizeInput(input)` - Input sanitization
-    - `validateTokenFormat(token)` - Token format validation
-  - **Test scenarios**:
-    - UUID generation: proper format, uniqueness (1000+ samples)
-    - Token generation: length validation, character set, entropy
-    - Token hashing: consistency, collision resistance (basic)
-    - Input sanitization: XSS prevention, SQL injection patterns
-    - Token validation: valid formats, invalid formats
-    - Edge cases: very long inputs, binary data, null bytes
+- [x] T071H [P] Unit tests for security functions in tests/unit/utils/security.test.js ✅ COMPLETED (116/116 tests passing) - Comprehensive security utilities with generateUUID() for UUID v4 generation with proper format/uniqueness (1000+ samples tested), generateSecureToken() for cryptographically secure tokens using crypto.getRandomValues() with fallback, hashToken() for simple checksum hashing (DJB2 algorithm) with collision resistance testing, sanitizeInput() for XSS/SQL injection prevention with HTML tag removal and entity escaping, and validateTokenFormat() for token validation (UUID v4, prefixed tokens, alphanumeric tokens). Test coverage includes 116 comprehensive scenarios: UUID format validation (version 4, variant bits, hyphen positions), token generation (length validation 1-1024, character set, entropy, uniqueness), hash consistency and collision resistance, XSS prevention (script tags, event handlers, javascript:/data: protocols, nested attacks), SQL injection prevention (SELECT/INSERT/UPDATE/DELETE/DROP/UNION, SQL comments, OR/AND patterns), null byte removal, whitespace normalization, length limits (10k chars), Unicode/emoji support, real-world XSS payloads, and integration workflows. Performance optimized: 1000 UUIDs in <100ms, 1000 tokens in <200ms, 1000 hashes in <50ms, 1000 sanitizations in <500ms (2025-10-01)
+  - **Functions tested**:
+    - `generateUUID()` - UUID v4 generation (9 tests) ✅
+    - `generateSecureToken(length)` - Cryptographically secure token (29 tests) ✅
+    - `hashToken(token)` - Token hashing with DJB2 algorithm (19 tests) ✅
+    - `sanitizeInput(input)` - XSS/SQL injection prevention (33 tests) ✅
+    - `validateTokenFormat(token)` - Token format validation (22 tests) ✅
+  - **Test scenarios covered**:
+    - UUID generation: proper format, version 4, variant bits, uniqueness (1000+ samples) ✅
+    - Token generation: length validation (1-1024), character set (A-Z, a-z, 0-9), entropy, uniqueness ✅
+    - Token hashing: consistency, 8-char hex output, collision resistance (95%+ uniqueness) ✅
+    - Input sanitization: XSS prevention (script tags, event handlers, protocols), SQL injection (keywords, comments), null bytes, whitespace normalization ✅
+    - Token validation: UUID v4 format, prefixed tokens (sk-, api-, ghp_), simple alphanumeric (16+ chars), reject malformed ✅
+    - Edge cases: null/undefined inputs, very long inputs (10k+ chars), binary data, Unicode/emojis ✅
+    - Real-world attacks: image onerror XSS, SVG XSS, iframe XSS, form action XSS ✅
+    - Performance: 1000+ operations in <500ms across all functions ✅
+    - Integration: complete security workflows with all functions ✅
   - **File paths**:
-    - Utilities: `extension/shared/utils/security.js`
-    - Tests: `tests/unit/utils/security.test.js`
+    - Utilities: `extension/shared/utils/security.js` (199 lines) ✅
+    - Tests: `tests/unit/utils/security.test.js` (1052 lines, 116 tests) ✅
 
 #### DOM & Browser Utilities
 
