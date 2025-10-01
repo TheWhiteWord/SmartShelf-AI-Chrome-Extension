@@ -25,7 +25,8 @@ tests/
 │   │   ├── search-index-optimizer.test.js   # T069 Search Optimizer tests (14/20 tests) ⚡
 │   │   └── ai-error-handler.test.js         # T070 Error Handler tests (8/22 tests) ⚡
 │   ├── utils/                     # Utility function tests
-│   │   └── content-extraction.test.js       # T071A Content extraction utilities (65/65 tests)✅
+│   │   ├── content-extraction.test.js       # T071A Content extraction utilities (65/65 tests) ✅
+│   │   └── content-detection.test.js        # T071B Content type detection utilities (51/51 tests) ✅
 │   ├── contracts/                 # API contract tests
 │   │   ├── ai-categorize.test.js  # AI categorization API tests
 │   │   ├── ai-summarize.test.js   # AI summarization API tests
@@ -168,7 +169,7 @@ Use the interactive test file for manual Chrome AI API verification:
 - **E2E Tests**: All critical user workflows tested
 - **Chrome AI APIs**: ✅ **ACHIEVED** - All supported APIs tested with fallbacks (Prompt, Summarizer, Writer, Rewriter)
 - **Entity Models**: ✅ **100% COMPLETE** - All 9 data models with comprehensive test coverage (325 tests)
-- **Utility Functions**: ✅ **T071A COMPLETE** - Content extraction utilities fully tested (65 tests)
+- **Utility Functions**: ✅ **T071A, T071B COMPLETE** - Content extraction (65 tests) and content detection (51 tests) utilities fully tested
 - **Chrome Extension Integration**: ✅ **100% COMPLETE** - All extension functionality validated (81 tests)
 
 ## 🛠️ Testing Chrome Extension Features
@@ -262,6 +263,41 @@ describe('Content Extraction Utilities', () => {
   
   test('should perform efficiently on large documents (10k+ elements)', () => {
     // Test performance on large HTML documents
+  })
+})
+```
+
+### Content Type Detection Utilities Testing (T071B)
+
+```javascript
+// Test intelligent content type classification
+describe('Content Detection Utilities', () => {
+  test('should detect video platforms (YouTube, Vimeo, Dailymotion)', () => {
+    // Test video platform detection
+  })
+  
+  test('should detect document types (PDF, DOC, images)', () => {
+    // Test document and image file detection with MIME types
+  })
+  
+  test('should detect social media platforms', () => {
+    // Test Twitter/X, LinkedIn, Facebook, Instagram, Reddit detection
+  })
+  
+  test('should detect research content', () => {
+    // Test ArXiv, PubMed, Google Scholar, academic publishers
+  })
+  
+  test('should classify content with priority-based detection', () => {
+    // Test 12 content categories with intelligent prioritization
+  })
+  
+  test('should handle edge cases (localhost, file://, chrome://)', () => {
+    // Test special URL schemes and edge cases
+  })
+  
+  test('should perform efficiently with large content and high volume', () => {
+    // Test performance optimization (<100ms for large content, <500ms for 1000 calls)
   })
 })
 ```
@@ -465,11 +501,11 @@ Ensure all tests pass before merging changes.
 
 **Final Statistics (2025-10-01):**
 
-- **Total Test Suites**: 36 (32 fully passing, 4 Phase 3.5 in progress)
-- **Total Tests**: 848 (795/848 passing - 94% success rate) ✅
+- **Total Test Suites**: 37 (33 fully passing, 4 Phase 3.5 in progress)
+- **Total Tests**: 899 (846/899 passing - 94% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
-- **Utility Function Tests**: 65 tests (Content Extraction: 65) ✅ (T071A complete)
+- **Utility Function Tests**: 116 tests (Content Extraction: 65, Content Detection: 51) ✅ (T071A, T071B complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -488,8 +524,9 @@ Ensure all tests pass before merging changes.
 5. **🛡️ Edge Case & Error Handling** - Comprehensive error scenario coverage
 6. **💾 Complete Storage Architecture** - T040 Storage Service (96% success) + T041 Content Repository (100% success) + T042 Search Service (100% success) with full CRUD operations, physical item support, advanced querying, and natural language search
 7. **🧠 Complete AI Services Architecture** - T046 AI Writer Service (100% success) with insights generation, notes enhancement, content analysis tools, and Chrome Built-in AI integration
-8. **� Content Extraction Utilities** - T071A (100% success) with 65 comprehensive tests covering DOM parsing, metadata extraction, structured data (JSON-LD, microdata), image filtering, link deduplication, and performance testing
-9. **�🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
+8. **✅ Content Extraction Utilities** - T071A (100% success) with 65 comprehensive tests covering DOM parsing, metadata extraction, structured data (JSON-LD, microdata), image filtering, link deduplication, and performance testing
+9. **🎯 Content Detection Utilities** - T071B (100% success) with 51 comprehensive tests covering intelligent content type classification for 12 categories (video, document, social, research, code, documentation, blog, news, reference, shopping, article, webpage) with priority-based detection and performance optimization
+10. **� AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
    - **✅ T066 Content Processing Pipeline** (100% complete) - State machine workflow orchestration
    - **✅ T067 AI Processing Queue** (100% complete) - Priority-based background processing with DLQ
    - **⚡ T069 Search Index Optimizer** (70% complete) - Batch processing for 10k+ items
@@ -497,7 +534,9 @@ Ensure all tests pass before merging changes.
 
 **The SmartShelf AI Chrome Extension test suite provides bulletproof validation for all functionality, ensuring reliable performance across all user scenarios and edge cases!** 🚀
 
-### **Latest Addition: T071A Content Extraction Utilities** (2025-10-01)
+### **Latest Additions: Utility Functions (T071A, T071B)** (2025-10-01)
+
+#### **T071A: Content Extraction Utilities**
 
 **Complete utility module extraction and testing:**
 
@@ -506,6 +545,7 @@ Ensure all tests pass before merging changes.
 - ✅ **Comprehensive test suite**: `tests/unit/utils/content-extraction.test.js` (1107 lines)
 
 **Functions tested:**
+
 1. **extractMainContent()** - DOM content extraction with element filtering (15 tests)
 2. **extractMetadata()** - Meta tag parsing (OG, Twitter, Article tags) (10 tests)
 3. **extractStructuredData()** - JSON-LD and microdata extraction (9 tests)
@@ -514,6 +554,7 @@ Ensure all tests pass before merging changes.
 6. **extractLinks()** - Link extraction and deduplication (12 tests)
 
 **Test coverage:**
+
 - ✅ Valid HTML documents with various meta tags
 - ✅ Missing or malformed metadata
 - ✅ Nested microdata structures
@@ -523,10 +564,70 @@ Ensure all tests pass before merging changes.
 - ✅ Null/undefined input handling
 
 **Technical highlights:**
+
 - Solved JSDOM limitations (naturalWidth/naturalHeight read-only)
 - Implemented intelligent fallback for testing environment
 - Comprehensive error handling and edge case coverage
 - Production-ready code quality with full test coverage
+
+#### **T071B: Content Type Detection Utilities**
+
+**Complete intelligent content type classification:**
+
+- ✅ **51/51 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/content-detection.js` (468 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/content-detection.test.js` (571 lines)
+
+**Functions tested:**
+
+1. **detectContentType()** - Main classification with 12 content categories (15 tests)
+2. **detectVideoContent()** - Video platform detection (YouTube, Vimeo, Dailymotion, Twitch, TikTok, Netflix, Hulu) (6 tests)
+3. **detectDocumentType()** - Document/image detection with MIME type support (PDF, DOC, DOCX, images) (7 tests)
+4. **detectSocialMedia()** - Social media platform detection (Twitter/X, LinkedIn, Facebook, Instagram, Reddit, Mastodon, Bluesky) (6 tests)
+5. **detectResearchContent()** - Academic content detection (ArXiv, PubMed, Google Scholar, IEEE, ACM, Nature, Springer) (6 tests)
+6. **Additional detectors** - Code repositories, documentation, blogs, news, reference, shopping (integrated testing)
+
+**Content categories (priority-based detection):**
+
+1. **video** - Video platforms and streaming services
+2. **research** - Academic papers and scholarly content (prioritized over documents)
+3. **document** - PDFs, Word docs, and file types
+4. **image** - Image files with MIME type detection
+5. **social** - Social media platforms
+6. **code** - GitHub, GitLab, Bitbucket repositories
+7. **documentation** - API docs, Stack Overflow, MDN
+8. **blog** - Medium, Substack, Dev.to, Hashnode
+9. **news** - CNN, BBC, Reuters, NYTimes, WSJ
+10. **reference** - Wikipedia, Britannica, dictionaries
+11. **shopping** - Amazon, eBay, Etsy, e-commerce
+12. **article** - Generic articles with `<article>` tags
+13. **webpage** - Default classification
+
+**Test coverage:**
+
+- ✅ Video platforms: YouTube, Vimeo, Dailymotion, Twitch, TikTok, Netflix, Hulu
+- ✅ Document types: PDF, DOC, DOCX, images with MIME type support
+- ✅ Social media: Twitter/X, LinkedIn, Facebook, Instagram, Reddit, Mastodon, Bluesky
+- ✅ Research platforms: ArXiv, PubMed, Google Scholar, IEEE, ACM, Nature, Springer
+- ✅ Code repositories: GitHub, GitLab, Bitbucket
+- ✅ Documentation: Stack Overflow, MDN, docs.* subdomains
+- ✅ Blog platforms: Medium, Substack, Dev.to, Hashnode
+- ✅ News outlets: CNN, BBC, Reuters, NYTimes, WSJ, Bloomberg
+- ✅ Reference sites: Wikipedia, Britannica
+- ✅ Shopping sites: Amazon, eBay, Etsy
+- ✅ Edge cases: localhost, file://, chrome://, null inputs, malformed URLs
+- ✅ Performance: large content (<100ms), high volume (1000 calls <500ms)
+- ✅ Integration scenarios: multiple detection methods, conflicting signals
+
+**Technical highlights:**
+
+- Priority-based detection algorithm (research > document for academic PDFs)
+- Case-insensitive file extension matching
+- Comprehensive platform coverage (50+ platforms detected)
+- Robust error handling for null/undefined inputs
+- Performance-optimized for large content and high-volume calls
+- Content analysis for research keywords (abstract, DOI, citations)
+- Integration-ready for content script intelligent processing
 
 ---
 

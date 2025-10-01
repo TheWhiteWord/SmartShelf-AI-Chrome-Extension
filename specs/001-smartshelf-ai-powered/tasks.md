@@ -184,26 +184,26 @@ Chrome Extension structure (from implementation plan):
     - Utilities: `extension/shared/utils/content-extraction.js` ✅
     - Tests: `tests/unit/utils/content-extraction.test.js` ✅
 
-- [ ] T071B [P] Unit tests for content type detection in tests/unit/utils/content-detection.test.js
+- [x] T071B [P] Unit tests for content type detection in tests/unit/utils/content-detection.test.js ✅ COMPLETED (51/51 tests passing) - Comprehensive content type detection utilities with intelligent platform classification covering video platforms (YouTube, Vimeo, Dailymotion), document types (PDF, DOC, images), social media (Twitter/X, LinkedIn, Facebook), research platforms (ArXiv, PubMed, Google Scholar), code repositories (GitHub), documentation sites, blog platforms (Medium, Substack), news outlets (CNN, BBC, Reuters), reference sites (Wikipedia), shopping sites, and generic content with priority-based detection algorithm and performance optimization
   - **Functions to test**:
-    - `detectContentType(url, hostname, content)` - Content type classification
-    - `detectVideoContent(url, hostname)` - Video platform detection
-    - `detectDocumentType(url, contentType)` - Document format detection
-    - `detectSocialMedia(hostname)` - Social media platform detection
-    - `detectResearchContent(hostname, content)` - Academic/research detection
+    - `detectContentType(url, hostname, content)` - Content type classification ✅
+    - `detectVideoContent(url, hostname)` - Video platform detection ✅
+    - `detectDocumentType(url, contentType)` - Document format detection ✅
+    - `detectSocialMedia(hostname)` - Social media platform detection ✅
+    - `detectResearchContent(hostname, content)` - Academic/research detection ✅
   - **Test scenarios**:
-    - YouTube, Vimeo, Dailymotion URLs
-    - PDF, DOC, image file extensions
-    - Twitter/X, LinkedIn, Facebook URLs
-    - ArXiv, PubMed, Google Scholar URLs
-    - GitHub repositories, documentation sites
-    - Blog platforms (Medium, Substack)
-    - News sites (CNN, BBC, Reuters)
-    - Generic articles and webpages
-    - Edge cases: localhost, file://, chrome:// URLs
+    - YouTube, Vimeo, Dailymotion URLs ✅
+    - PDF, DOC, image file extensions ✅
+    - Twitter/X, LinkedIn, Facebook URLs ✅
+    - ArXiv, PubMed, Google Scholar URLs ✅
+    - GitHub repositories, documentation sites ✅
+    - Blog platforms (Medium, Substack) ✅
+    - News sites (CNN, BBC, Reuters) ✅
+    - Generic articles and webpages ✅
+    - Edge cases: localhost, file://, chrome:// URLs ✅
   - **File paths**:
-    - Utilities: `extension/shared/utils/content-detection.js`
-    - Tests: `tests/unit/utils/content-detection.test.js`
+    - Utilities: `extension/shared/utils/content-detection.js` ✅
+    - Tests: `tests/unit/utils/content-detection.test.js` ✅
 
 - [ ] T071C [P] Unit tests for content quality assessment in tests/unit/utils/content-quality.test.js
   - **Functions to test**:
