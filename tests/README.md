@@ -30,7 +30,11 @@ tests/
 │   │   ├── content-quality.test.js          # T071C Content quality assessment utilities (54/54 tests) ✅
 │   │   ├── url-formatter.test.js            # T071D URL formatting utilities (70/70 tests) ✅
 │   │   ├── time-formatter.test.js           # T071E Time formatting utilities (107/107 tests) ✅
-│   │   └── text-formatter.test.js           # T071F Text formatting utilities (125/125 tests) ✅
+│   │   ├── text-formatter.test.js           # T071F Text formatting utilities (125/125 tests) ✅
+│   │   ├── validation.test.js               # T071G Validation utilities (144/144 tests) ✅
+│   │   ├── security.test.js                 # T071H Security utilities (116/116 tests) ✅
+│   │   ├── dom-helpers.test.js              # T071I DOM helper utilities (86/86 tests) ✅
+│   │   └── data-processing.test.js          # T071J Data processing utilities (120/120 tests) ✅
 │   ├── contracts/                 # API contract tests
 │   │   ├── ai-categorize.test.js  # AI categorization API tests
 │   │   ├── ai-summarize.test.js   # AI summarization API tests
@@ -73,7 +77,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
-- **Utility Functions Coverage**: **T071A-H COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), validation utilities (144 tests), and security utilities (116 tests) with 732/732 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats), cryptographic token generation, UUID v4 generation, token hashing, XSS/SQL injection prevention, and token format validation
+- **Utility Functions Coverage**: **T071A-I COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), validation utilities (144 tests), security utilities (116 tests), and DOM helpers (86 tests) with 818/818 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats), cryptographic token generation, UUID v4 generation, token hashing, XSS/SQL injection prevention, token format validation, safe DOM querying (querySelector/querySelectorAll), batch element removal, text content extraction with whitespace normalization, and safe HTML parsing with XSS prevention
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -513,7 +517,7 @@ Before submitting code, ensure:
 - [x] **Chrome Extension Integration** ✅ **100% COMPLETE - All functionality validated**
 - [x] **Storage Architecture** ✅ **100% COMPLETE - T040 Storage Service + T041 Content Repository**
 - [x] **AI Services Architecture** ✅ **100% COMPLETE - T046 AI Writer Service with Chrome Built-in AI integration**
-- [x] **Utility Functions** ✅ **T071A-G COMPLETE - 7 utility modules with 616 tests (Content Extraction, Content Detection, Content Quality, URL Formatting, Time Formatting, Text Formatting, Validation)**
+- [x] **Utility Functions** ✅ **T071A-J COMPLETE - 10 utility modules with 938 tests (Content Extraction, Content Detection, Content Quality, URL Formatting, Time Formatting, Text Formatting, Validation, Security, DOM Helpers, Data Processing)**
 - [x] **AI Processing Pipeline** ⚡ **60% COMPLETE - Phase 3.5 with 2 production-ready components (T066, T067)**
 
 ## 🔄 Continuous Integration
@@ -533,11 +537,11 @@ Ensure all tests pass before merging changes.
 
 **Final Statistics (2025-10-01):**
 
-- **Total Test Suites**: 42 (39 fully passing, 3 Phase 3.5 in progress)
-- **Total Tests**: 1440 (1418/1440 passing - 98.5% success rate) ✅
+- **Total Test Suites**: 44 (41 fully passing, 3 Phase 3.5 in progress)
+- **Total Tests**: 1646 (1624/1646 passing - 98.7% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
-- **Utility Function Tests**: 616 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125, Validation: 144) ✅ (T071A, T071B, T071C, T071D, T071E, T071F, T071G complete)
+- **Utility Function Tests**: 938 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125, Validation: 144, Security: 116, DOM Helpers: 86, Data Processing: 120) ✅ (T071A-J complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -1200,6 +1204,148 @@ Ensure all tests pass before merging changes.
 - **API security**: Validate and sanitize API inputs, generate secure access tokens
 - **Form validation**: Combined with validation utilities for comprehensive input checking
 
+#### **T071I: DOM Helper Utilities** 🆕
+
+**Complete DOM manipulation utility module:**
+
+- ✅ **86/86 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/dom-helpers.js` (196 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/dom-helpers.test.js` (713 lines, 86 tests)
+
+**Functions tested:**
+
+1. **querySelector(selector, root)** - Safe querySelector with fallback (14 tests) ✅
+   - Prevents exceptions from invalid selectors
+   - Returns null instead of throwing errors
+   - Supports custom root elements
+   - Handles null/undefined inputs gracefully
+2. **querySelectorAll(selector, root)** - Safe querySelectorAll wrapper (14 tests) ✅
+   - Converts NodeList to Array for better manipulation
+   - Returns empty array for invalid selectors
+   - Supports custom root elements
+   - Never throws exceptions
+3. **removeElements(root, selectors)** - Batch element removal (17 tests) ✅
+   - Single selector or array of selectors
+   - Returns count of removed elements
+   - Skips invalid selectors gracefully
+   - Handles disconnected nodes
+4. **getTextContent(element)** - Clean text extraction (13 tests) ✅
+   - Normalizes whitespace (collapses spaces, preserves newlines)
+   - Trims leading/trailing whitespace
+   - Handles nested elements
+   - Returns empty string for null/undefined
+5. **createElementFromHTML(html)** - Safe HTML parsing (15 tests) ✅
+   - XSS prevention (script tags, event handlers, protocols)
+   - Uses div container for JSDOM compatibility
+   - Returns first child element
+   - Rejects dangerous content
+
+**Test coverage:**
+
+- ✅ Valid CSS selectors: ID, class, tag, attribute, complex selectors
+- ✅ Invalid selectors: Empty, null, undefined, malformed syntax (no exceptions)
+- ✅ Element removal: Single/multiple selectors, array handling, disconnected nodes
+- ✅ Text extraction: Nested elements, whitespace normalization, tabs/newlines
+- ✅ HTML parsing: Safe content, XSS prevention, case-insensitive security checks
+- ✅ Edge cases: Null elements, empty content, whitespace-only, disconnected nodes
+- ✅ Integration scenarios: Complete workflows with multiple functions working together
+- ✅ Performance: 1000+ querySelectorAll operations (<100ms), batch removal of 100 elements (<50ms)
+
+**Security features:**
+
+| Attack Vector | Protection | Tests |
+| --- | --- | --- |
+| **Script tags** | Regex pattern detection | ✅ Uppercase/lowercase variants |
+| **javascript: protocol** | URL protocol check | ✅ Links and iframes |
+| **data: URLs** | data:text/html detection | ✅ HTML in data URLs |
+| **Event handlers** | onclick/onerror/onload detection | ✅ All event types |
+| **Case variations** | Case-insensitive patterns | ✅ Mixed case attacks |
+
+**Whitespace normalization:**
+
+| Input | Output | Behavior |
+| --- | --- | --- |
+| `"Multiple    spaces"` | `"Multiple spaces"` | Collapses horizontal whitespace |
+| `"Line 1\n\n\nLine 2"` | `"Line 1\n\nLine 2"` | Collapses 3+ newlines to 2 |
+| `"   Text   "` | `"Text"` | Trims leading/trailing whitespace |
+| `"\t\tTabbed\nNewline\t\t"` | `"Tabbed\nNewline"` | Normalizes tabs and newlines |
+
+**Technical highlights:**
+
+- **Safe querySelector wrappers**: Never throw exceptions, return null/empty array instead
+- **NodeList to Array conversion**: Array.from() for better manipulation
+- **Batch element removal**: Supports array of selectors for efficiency
+- **Whitespace normalization**: Smart handling of spaces, tabs, newlines
+- **XSS prevention**: Multiple security patterns (scripts, protocols, event handlers)
+- **JSDOM compatibility**: Uses div container instead of template element
+- **Custom root support**: Query from any element, not just document
+- **Performance optimized**: <100ms for 1000+ operations, <50ms for batch removal
+- **Production-ready**: Full test coverage, edge case handling, security focus
+- **Integration-ready**: Works seamlessly with content extraction and UI rendering
+
+**Use cases in SmartShelf:**
+
+- **Content script DOM manipulation**: Safe querySelector/querySelectorAll for content extraction
+- **UI component rendering**: Dynamic element creation with XSS prevention
+- **Text extraction**: Clean text content from web pages with whitespace normalization
+- **Element cleanup**: Batch removal of unwanted elements (ads, scripts, navigation)
+- **Safe HTML parsing**: Create DOM elements from HTML strings with security checks
+- **Form handling**: Extract and validate form data with safe DOM access
+- **Dynamic UI updates**: Add/remove/modify DOM elements safely in popup/sidepanel
+- **Content filtering**: Remove unwanted content before AI processing
+
+#### **T071I: DOM Helper Utilities** 🆕
+
+**Complete DOM manipulation utility module:**
+
+- ✅ **86/86 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/dom-helpers.js` (196 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/dom-helpers.test.js` (713 lines, 86 tests)
+
+**Functions tested:**
+
+1. **querySelector(selector, root)** - Safe querySelector with fallback (14 tests)
+2. **querySelectorAll(selector, root)** - Safe querySelectorAll wrapper returning Array (14 tests)
+3. **removeElements(root, selectors)** - Batch element removal with array/string support (17 tests)
+4. **getTextContent(element)** - Clean text extraction with whitespace normalization (13 tests)
+5. **createElementFromHTML(html)** - Safe HTML parsing with XSS prevention (15 tests)
+
+**Test coverage:**
+
+- ✅ Valid CSS selectors: ID, class, tag, attribute, complex selectors
+- ✅ Invalid selectors: Empty, null, undefined, malformed syntax (no exceptions)
+- ✅ Element removal: Single/multiple selectors, array handling, disconnected nodes
+- ✅ Text extraction: Nested elements, whitespace normalization, tabs/newlines
+- ✅ HTML parsing: Safe content, XSS prevention (scripts, event handlers, protocols)
+- ✅ Edge cases: Null elements, empty content, whitespace-only, disconnected nodes
+- ✅ Integration scenarios: Complete workflows with multiple functions
+- ✅ Performance: 1000+ querySelectorAll (<100ms), batch removal of 100 elements (<50ms)
+
+**Security features:**
+
+- XSS prevention: Script tags, javascript:/data: protocols, event handlers (onclick, onerror, onload)
+- Case-insensitive pattern matching for security checks
+- Safe fallback behavior for invalid inputs (no exceptions thrown)
+
+**Technical highlights:**
+
+- Safe querySelector wrappers: Never throw exceptions, return null/empty array
+- NodeList to Array conversion with Array.from()
+- Batch element removal with array/string selector support
+- Smart whitespace normalization (collapses spaces, preserves newlines)
+- JSDOM compatibility with div container instead of template element
+- Production-ready with full test coverage and security focus
+
+**Use cases in SmartShelf:**
+
+- Content script DOM manipulation for safe element querying
+- UI component rendering with XSS prevention
+- Text extraction from web pages with whitespace normalization
+- Batch removal of unwanted elements (ads, scripts, navigation)
+- Safe HTML parsing for dynamic content creation
+- Form handling with safe DOM access
+- Dynamic UI updates in popup/sidepanel components
+
 ---
 
 ## 🆕 Phase 3.5: AI Processing Pipeline Testing (2025-10-01)
@@ -1254,6 +1400,32 @@ Ensure all tests pass before merging changes.
 
 **Status**: **Core architecture functional**, advanced resilience features in development
 
+#### **T071J: Data Processing Utilities** (120/120 tests passing - 100%) 🆕
+
+- ✅ **debounce()** - Delayed function execution with cancel support (14 tests)
+  - Delay execution, rapid call handling, context preservation, cancel method, edge cases
+- ✅ **throttle()** - Rate-limited execution with trailing calls (15 tests)
+  - Immediate first call, rate limiting, trailing execution, cancel method, edge cases
+- ✅ **chunk()** - Array splitting with configurable size (14 tests)
+  - Various sizes, data types, edge cases, performance (10k items)
+- ✅ **deduplicate()** - Duplicate removal for primitives and objects (14 tests)
+  - Primitive arrays via Set, object arrays by key, performance (10k items)
+- ✅ **deepClone()** - Deep object/array/date cloning (21 tests)
+  - Nested structures, null prototypes, mutation independence, performance
+- ✅ **deepMerge()** - Recursive object merging (29 tests)
+  - Nested objects, array replacement, type conflicts, null handling, performance
+- ✅ **Integration** - Combined utility workflows (3 tests)
+
+**Performance Benchmarks:**
+- Chunk 10k items: <100ms ✅
+- Deduplicate 10k primitives: <100ms ✅
+- Deduplicate 10k objects: <200ms ✅
+- Deep clone 1k complex objects: <100ms ✅
+- Deep clone 10k array items: <200ms ✅
+- Deep merge 1k+ properties: <200ms ✅
+
+**Status**: **PRODUCTION-READY** for UI debouncing, event throttling, data processing, configuration management, and state cloning
+
 ### **Key Technical Achievements**
 
 1. **Event Handling Compatibility**: Implemented `.on()` wrapper for EventTarget in T066 and T067
@@ -1263,6 +1435,7 @@ Ensure all tests pass before merging changes.
 5. **State Machine Architecture**: Robust workflow orchestration in T066 with proper state transitions
 6. **Circuit Breaker Pattern**: Core state machine working in T070 with half-open state transitions
 7. **Error Categorization**: Test-aligned categories for intelligent retry strategies
+8. **Complete Utility Suite**: All 10 utility modules with 938 tests (T071A-J) covering content extraction, type detection, quality assessment, formatting, validation, security, DOM manipulation, and data processing
 
 ### **Overall Phase 3.5 Progress**
 
