@@ -34,7 +34,8 @@ tests/
 │   │   ├── validation.test.js               # T071G Validation utilities (144/144 tests) ✅
 │   │   ├── security.test.js                 # T071H Security utilities (116/116 tests) ✅
 │   │   ├── dom-helpers.test.js              # T071I DOM helper utilities (86/86 tests) ✅
-│   │   └── data-processing.test.js          # T071J Data processing utilities (120/120 tests) ✅
+│   │   ├── data-processing.test.js          # T071J Data processing utilities (120/120 tests) ✅
+│   │   └── error-handling.test.js           # T071K Error handling utilities (79/79 tests) ✅
 │   ├── contracts/                 # API contract tests
 │   │   ├── ai-categorize.test.js  # AI categorization API tests
 │   │   ├── ai-summarize.test.js   # AI summarization API tests
@@ -77,7 +78,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
-- **Utility Functions Coverage**: **T071A-I COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), validation utilities (144 tests), security utilities (116 tests), and DOM helpers (86 tests) with 818/818 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats), cryptographic token generation, UUID v4 generation, token hashing, XSS/SQL injection prevention, token format validation, safe DOM querying (querySelector/querySelectorAll), batch element removal, text content extraction with whitespace normalization, and safe HTML parsing with XSS prevention
+- **Utility Functions Coverage**: **T071A-K COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), validation utilities (144 tests), security utilities (116 tests), DOM helpers (86 tests), data processing (120 tests), and error handling (79 tests) with 1017/1017 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats), cryptographic token generation, UUID v4 generation, token hashing, XSS/SQL injection prevention, token format validation, safe DOM querying (querySelector/querySelectorAll), batch element removal, text content extraction with whitespace normalization, safe HTML parsing with XSS prevention, debounce/throttle for performance, array chunking, deduplication, deep cloning/merging, custom error creation, network/auth error detection, user-friendly error formatting, and exponential backoff retry logic
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -537,11 +538,11 @@ Ensure all tests pass before merging changes.
 
 **Final Statistics (2025-10-01):**
 
-- **Total Test Suites**: 44 (41 fully passing, 3 Phase 3.5 in progress)
-- **Total Tests**: 1646 (1624/1646 passing - 98.7% success rate) ✅
+- **Total Test Suites**: 45 (42 fully passing, 3 Phase 3.5 in progress)
+- **Total Tests**: 1725 (1703/1725 passing - 98.7% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
-- **Utility Function Tests**: 938 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125, Validation: 144, Security: 116, DOM Helpers: 86, Data Processing: 120) ✅ (T071A-J complete)
+- **Utility Function Tests**: 1017 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125, Validation: 144, Security: 116, DOM Helpers: 86, Data Processing: 120, Error Handling: 79) ✅ (T071A-K complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -567,6 +568,7 @@ Ensure all tests pass before merging changes.
 11. **⏰ Time Formatting Utilities** - T071E (100% success) with 107 comprehensive tests covering formatTimeAgo() (relative time: "Just now", "Xm ago", "Xh ago", "Xd ago", "Xw ago", "Xmo ago", "Xy ago"), formatDate() (custom formats with 12 tokens: YYYY, YY, MM, M, DD, D, HH, H, mm, m, ss, s), formatDuration() (milliseconds to compound durations: "1d 3h 30m"), getCurrentTimestamp(), and isValidDate(). Handles Date objects, timestamps, ISO strings, timezone support (UTC/local), edge cases (negative timestamps, very old dates, future dates, invalid inputs), and performance optimization (1000+ operations in <100ms)
 12. **📝 Text Formatting Utilities** - T071F (100% success) with 125 comprehensive tests covering escapeHtml() (XSS prevention with HTML entity escaping: &, <, >, ", '), truncateText() (smart truncation with word boundary preservation at 85% threshold, default 100 chars), capitalizeWords() (title case conversion with hyphen/dash/apostrophe support), slugify() (URL-safe slug generation with lowercase, hyphen replacement, special char removal, accented char preservation), and stripHtml() (HTML tag removal with entity decoding: &amp;, &lt;, &gt;, &quot;, &#39;, &nbsp;, and whitespace normalization). Handles Unicode characters, emojis, CJK characters, nested HTML, edge cases (null, undefined, empty strings), and integration workflows. Production-ready for content display, URL generation, and safe HTML rendering
 13. **✅ Validation Utilities** - T071G (100% success) with 144 comprehensive tests covering validateUrl() (RFC 3986: http/https/ftp/file protocols, hostname validation, double dot detection), validateEmail() (RFC 5322 with TLD requirement, plus signs, dots, underscores), validateHexColor() (#RGB or #RRGGBB, case-insensitive), validateUUID() (UUID v4 format with version/variant checks), validateISBN() (ISBN-10/13 with check digit validation, hyphens/spaces support), and validateDateFormat() (ISO 8601: YYYY-MM-DD, time/timezone support, impossible date detection). Handles null/undefined/empty strings, edge cases (localhost, IP addresses, leap years), and performance optimization (1000+ validations in <200ms). Production-ready for form validation, data sanitization, and input verification across extension UI and storage operations
+14. **🚨 Error Handling Utilities** - T071K (100% success) with 79 comprehensive tests covering createError() for custom error creation with code/details/stack traces, isNetworkError()/isAuthError() for intelligent error type detection, formatErrorMessage() for user-friendly error display, and retryOperation() for exponential backoff retry logic with configurable options (maxRetries, initialDelay, maxDelay, backoffMultiplier, shouldRetry). Production-ready for AI processing error recovery, service worker resilience, content script error handling, and user-facing error messages
 15. **🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
 
 - **✅ T066 Content Processing Pipeline** (100% complete) - State machine workflow orchestration
@@ -1425,6 +1427,45 @@ Ensure all tests pass before merging changes.
 - Deep merge 1k+ properties: <200ms ✅
 
 **Status**: **PRODUCTION-READY** for UI debouncing, event throttling, data processing, configuration management, and state cloning
+
+#### **T071K: Error Handling Utilities** (79/79 tests passing - 100%) 🆕
+
+- ✅ **createError(message, code, details)** - Custom error creation with code/details/stack traces (12 tests)
+  - Error instances with custom properties, stack trace capture, parameter validation
+- ✅ **isNetworkError(error)** - Network error detection (9 tests)
+  - Error codes (ENOTFOUND, ECONNREFUSED, ETIMEDOUT, ERR_NETWORK), NetworkError/TypeError, message keywords
+- ✅ **isAuthError(error)** - Authentication error detection (9 tests)
+  - Auth codes (AUTH_ERROR, INVALID_TOKEN), 401/403 HTTP status, message keywords
+- ✅ **formatErrorMessage(error)** - User-friendly error formatting (12 tests)
+  - Network → "Network connection failed...", Auth → "Authentication failed...", Validation/Rate limit/Server errors
+- ✅ **retryOperation(fn, options)** - Exponential backoff retry logic (24 tests)
+  - Configurable retries/delays, custom shouldRetry, exponential backoff with maxDelay cap, parameter validation
+- ✅ **Integration** - Complete error handling workflows (3 tests)
+  - Error creation → detection → formatting → retry with intelligent strategies
+
+**Error Categories:**
+
+- **Network errors**: Connection failures, timeouts, DNS issues, fetch failures
+- **Auth errors**: 401/403 status, invalid/expired tokens, unauthorized access
+- **Validation errors**: Invalid input, malformed data
+- **Rate limit errors**: 429 status, too many requests
+- **Server errors**: 5xx status codes
+
+**Retry Options:**
+
+- `maxRetries` (default: 3) - Maximum retry attempts
+- `initialDelay` (default: 1000ms) - Initial backoff delay
+- `maxDelay` (default: 30000ms) - Maximum delay cap
+- `backoffMultiplier` (default: 2) - Exponential backoff factor
+- `shouldRetry` - Custom function to determine retry eligibility
+
+**Performance:**
+
+- Error creation/detection: <1ms per operation
+- Retry with exponential backoff: Configurable delays (10ms-30s)
+- Concurrent retry operations: Fully supported
+
+**Status**: **PRODUCTION-READY** for AI processing error recovery, service worker resilience, content script error handling, and user-facing error messages
 
 ### **Key Technical Achievements**
 
