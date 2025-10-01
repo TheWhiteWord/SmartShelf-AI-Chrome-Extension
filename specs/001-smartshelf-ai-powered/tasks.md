@@ -293,30 +293,30 @@ Chrome Extension structure (from implementation plan):
 
 #### Validation Utilities
 
-- [ ] T071G [P] Unit tests for validation functions in tests/unit/utils/validation.test.js
-  - **Functions to test**:
-    - `validateUrl(url)` - URL validation (RFC 3986)
-    - `validateEmail(email)` - Email validation
-    - `validateHexColor(color)` - Hex color format (#RGB or #RRGGBB)
-    - `validateUUID(uuid)` - UUID v4 validation
-    - `validateISBN(isbn)` - ISBN-10/13 validation
-    - `validateDateFormat(date)` - ISO 8601 date validation
-  - **Test scenarios**:
-    - Valid URLs: http, https, ftp, file://
-    - Invalid URLs: missing protocol, malformed
-    - Valid emails: standard formats
-    - Invalid emails: missing @, invalid domains
-    - Valid hex colors: #RGB, #RRGGBB (case-insensitive)
-    - Invalid colors: missing #, invalid chars, wrong length
-    - Valid UUIDs: proper v4 format
-    - Invalid UUIDs: wrong version, wrong format
-    - Valid ISBNs: ISBN-10, ISBN-13, with/without hyphens
-    - Invalid ISBNs: wrong length, invalid check digits
-    - Valid dates: ISO 8601 formats
-    - Invalid dates: malformed, impossible dates
+- [x] T071G [P] Unit tests for validation functions in tests/unit/utils/validation.test.js ✅ COMPLETED (144/144 tests passing) - Comprehensive validation utilities with validateUrl() (RFC 3986: http/https/ftp/file protocols, hostname validation, malformed syntax detection), validateEmail() (RFC 5322 with TLD requirement), validateHexColor() (#RGB or #RRGGBB, case-insensitive), validateUUID() (UUID v4 format with version/variant checks), validateISBN() (ISBN-10/13 with check digit validation using modulo algorithms, hyphens/spaces support), and validateDateFormat() (ISO 8601 with multiple formats, impossible date detection, leap year validation). Covers 144 test scenarios including valid/invalid inputs, edge cases (null, undefined, empty strings, localhost, IP addresses), and performance optimization (1000+ validations in <200ms). Production-ready for form validation, data sanitization, and input verification (2025-10-01)
+  - **Functions tested**:
+    - `validateUrl(url)` - RFC 3986 URL validation (http/https/ftp/file) ✅
+    - `validateEmail(email)` - Email validation with TLD requirement ✅
+    - `validateHexColor(color)` - Hex color format (#RGB or #RRGGBB) ✅
+    - `validateUUID(uuid)` - UUID v4 validation with version/variant checks ✅
+    - `validateISBN(isbn)` - ISBN-10/13 with check digit validation ✅
+    - `validateDateFormat(date)` - ISO 8601 date validation ✅
+  - **Test scenarios covered**:
+    - Valid URLs: http, https, ftp, file:// ✅
+    - Invalid URLs: missing protocol, malformed syntax ✅
+    - Valid emails: standard formats with plus signs, dots, underscores ✅
+    - Invalid emails: missing @, invalid TLD ✅
+    - Valid hex colors: #RGB, #RRGGBB (case-insensitive) ✅
+    - Invalid colors: missing #, invalid chars, wrong length ✅
+    - Valid UUIDs: proper v4 format (lowercase/uppercase/mixed) ✅
+    - Invalid UUIDs: wrong version, wrong variant ✅
+    - Valid ISBNs: ISBN-10, ISBN-13, with/without hyphens/spaces ✅
+    - Invalid ISBNs: wrong length, invalid check digits ✅
+    - Valid dates: ISO 8601 formats with time/timezone ✅
+    - Invalid dates: malformed, impossible dates (Feb 30, non-leap Feb 29) ✅
   - **File paths**:
-    - Utilities: `extension/shared/utils/validation.js`
-    - Tests: `tests/unit/utils/validation.test.js`
+    - Utilities: `extension/shared/utils/validation.js` (282 lines) ✅
+    - Tests: `tests/unit/utils/validation.test.js` (756 lines, 144 tests) ✅
 
 #### Security Utilities
 

@@ -73,7 +73,7 @@ tests/
 - **Entity Model Coverage**: **100% COMPLETE** - All 9 entity models with 325 comprehensive tests covering business logic, validation, Chrome Storage integration, and edge cases
 - **Storage Services Coverage**: **100% COMPLETE** - Storage Service (T040) with 48/50 tests (96% success), Content Repository (T041) with 42/42 tests (100% success), Search Service (T042) with 52/52 tests (100% success)
 - **AI Services Coverage**: **100% COMPLETE** - AI Writer service (T046) with 24/24 tests (100% success) for content analysis, insights generation, and notes enhancement
-- **Utility Functions Coverage**: **T071A, T071B, T071C, T071D, T071E, T071F COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), and text formatting (125 tests) utilities with 472/472 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, and HTML stripping
+- **Utility Functions Coverage**: **T071A, T071B, T071C, T071D, T071E, T071F, T071G COMPLETE** - Content extraction (65 tests), content detection (51 tests), content quality assessment (54 tests), URL formatting (70 tests), time formatting (107 tests), text formatting (125 tests), and validation utilities (144 tests) with 616/616 tests (100% success) covering DOM parsing, metadata extraction, intelligent type classification, quality scoring, reading time estimation, spam detection, URL display formatting, relative time strings, custom date formatting, duration formatting, HTML escaping, text truncation, title case conversion, slug generation, HTML stripping, and comprehensive validation (URL, email, hex color, UUID, ISBN, ISO 8601 date formats)
 - **AI Processing Pipeline Coverage**: **60% COMPLETE** - Phase 3.5 implementation with 53/88 tests passing:
   - **T066 Content Processing Pipeline**: ✅ **100% COMPLETE** (17/17 tests) - Production-ready workflow orchestration
   - **T067 AI Processing Queue**: ✅ **100% COMPLETE** (20/20 tests) - Production-ready background processing
@@ -513,7 +513,7 @@ Before submitting code, ensure:
 - [x] **Chrome Extension Integration** ✅ **100% COMPLETE - All functionality validated**
 - [x] **Storage Architecture** ✅ **100% COMPLETE - T040 Storage Service + T041 Content Repository**
 - [x] **AI Services Architecture** ✅ **100% COMPLETE - T046 AI Writer Service with Chrome Built-in AI integration**
-- [x] **Utility Functions** ✅ **T071A-E COMPLETE - 5 utility modules with 347 tests (Content Extraction, Content Detection, Content Quality, URL Formatting, Time Formatting)**
+- [x] **Utility Functions** ✅ **T071A-G COMPLETE - 7 utility modules with 616 tests (Content Extraction, Content Detection, Content Quality, URL Formatting, Time Formatting, Text Formatting, Validation)**
 - [x] **AI Processing Pipeline** ⚡ **60% COMPLETE - Phase 3.5 with 2 production-ready components (T066, T067)**
 
 ## 🔄 Continuous Integration
@@ -534,10 +534,10 @@ Ensure all tests pass before merging changes.
 **Final Statistics (2025-10-01):**
 
 - **Total Test Suites**: 42 (39 fully passing, 3 Phase 3.5 in progress)
-- **Total Tests**: 1296 (1274/1296 passing - 98.3% success rate) ✅
+- **Total Tests**: 1440 (1418/1440 passing - 98.5% success rate) ✅
 - **Entity Model Tests**: 325 tests across 9 models ✅ (100% complete)
 - **Service Layer Tests**: 166 tests (Storage: 48, Content Repository: 42, Search: 52, AI Writer: 24) ✅ (100% complete)
-- **Utility Function Tests**: 472 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125) ✅ (T071A, T071B, T071C, T071D, T071E, T071F complete)
+- **Utility Function Tests**: 616 tests (Content Extraction: 65, Content Detection: 51, Content Quality: 54, URL Formatting: 70, Time Formatting: 107, Text Formatting: 125, Validation: 144) ✅ (T071A, T071B, T071C, T071D, T071E, T071F, T071G complete)
 - **AI Processing Pipeline Tests**: 88 tests (53/88 passing - 60% complete) ⚡
   - **T066 Content Pipeline**: 17/17 tests ✅ (100% production-ready)
   - **T067 AI Queue**: 20/20 tests ✅ (100% production-ready)
@@ -562,7 +562,8 @@ Ensure all tests pass before merging changes.
 10. **🔗 URL Formatting Utilities** - T071D (100% success) with 70 comprehensive tests covering formatUrl(), formatSource(), extractDomain(), and truncatePath() functions. Handles standard HTTP/HTTPS URLs, www prefix removal, long URL truncation, query parameters, hash fragments, relative URLs, invalid URLs, and edge cases (localhost, IP addresses, IDN domains)
 11. **⏰ Time Formatting Utilities** - T071E (100% success) with 107 comprehensive tests covering formatTimeAgo() (relative time: "Just now", "Xm ago", "Xh ago", "Xd ago", "Xw ago", "Xmo ago", "Xy ago"), formatDate() (custom formats with 12 tokens: YYYY, YY, MM, M, DD, D, HH, H, mm, m, ss, s), formatDuration() (milliseconds to compound durations: "1d 3h 30m"), getCurrentTimestamp(), and isValidDate(). Handles Date objects, timestamps, ISO strings, timezone support (UTC/local), edge cases (negative timestamps, very old dates, future dates, invalid inputs), and performance optimization (1000+ operations in <100ms)
 12. **📝 Text Formatting Utilities** - T071F (100% success) with 125 comprehensive tests covering escapeHtml() (XSS prevention with HTML entity escaping: &, <, >, ", '), truncateText() (smart truncation with word boundary preservation at 85% threshold, default 100 chars), capitalizeWords() (title case conversion with hyphen/dash/apostrophe support), slugify() (URL-safe slug generation with lowercase, hyphen replacement, special char removal, accented char preservation), and stripHtml() (HTML tag removal with entity decoding: &amp;, &lt;, &gt;, &quot;, &#39;, &nbsp;, and whitespace normalization). Handles Unicode characters, emojis, CJK characters, nested HTML, edge cases (null, undefined, empty strings), and integration workflows. Production-ready for content display, URL generation, and safe HTML rendering
-13. **🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
+13. **✅ Validation Utilities** - T071G (100% success) with 144 comprehensive tests covering validateUrl() (RFC 3986: http/https/ftp/file protocols, hostname validation, double dot detection), validateEmail() (RFC 5322 with TLD requirement, plus signs, dots, underscores), validateHexColor() (#RGB or #RRGGBB, case-insensitive), validateUUID() (UUID v4 format with version/variant checks), validateISBN() (ISBN-10/13 with check digit validation, hyphens/spaces support), and validateDateFormat() (ISO 8601: YYYY-MM-DD, time/timezone support, impossible date detection). Handles null/undefined/empty strings, edge cases (localhost, IP addresses, leap years), and performance optimization (1000+ validations in <200ms). Production-ready for form validation, data sanitization, and input verification across extension UI and storage operations
+15. **🔄 AI Processing Pipeline Foundation** - Phase 3.5 implementation with 2 production-ready components:
 
 - **✅ T066 Content Processing Pipeline** (100% complete) - State machine workflow orchestration
 - **✅ T067 AI Processing Queue** (100% complete) - Priority-based background processing with DLQ
@@ -973,6 +974,95 @@ Ensure all tests pass before merging changes.
 - **UI formatting**: Proper title case for headings and labels
 - **Security**: Prevent XSS attacks with HTML escaping
 - **Data processing**: Clean and format text for storage and display
+
+#### **T071G: Validation Utilities** 🆕
+
+**Complete validation utility module:**
+
+- ✅ **144/144 tests passing** (100% success rate)
+- ✅ **Utility module**: `extension/shared/utils/validation.js` (282 lines)
+- ✅ **Comprehensive test suite**: `tests/unit/utils/validation.test.js` (756 lines)
+
+**Functions tested:**
+
+1. **validateUrl()** - URL validation (RFC 3986) (21 tests)
+   - Supports: http, https, ftp, file protocols
+   - Validates hostname presence for network protocols
+   - Rejects: missing protocol, invalid protocol, unsupported protocol, malformed URLs
+   - Detects double dots in hostname (malformed syntax)
+2. **validateEmail()** - Email validation (19 tests)
+   - RFC 5322 simplified regex with TLD requirement
+   - Accepts: plus signs, dots, numbers, underscores, hyphens in domain
+   - Rejects: missing @, missing domain, missing local part, multiple @ signs, invalid TLD
+3. **validateHexColor()** - Hex color format (#RGB or #RRGGBB) (19 tests)
+   - Case-insensitive validation
+   - Accepts: 3-digit (#RGB) and 6-digit (#RRGGBB) formats
+   - Rejects: missing #, invalid length (4, 5, 7 digits), invalid characters
+4. **validateUUID()** - UUID v4 validation (20 tests)
+   - Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+   - Validates version digit (4) and variant digit (8, 9, a, b)
+   - Case-insensitive
+   - Rejects: wrong version, wrong variant, missing hyphens, invalid format
+5. **validateISBN()** - ISBN-10/13 validation (22 tests)
+   - ISBN-10: 9 digits + check digit (0-9 or X)
+   - ISBN-13: 13 digits with check digit
+   - Accepts: with/without hyphens, with spaces
+   - Check digit validation using modulo algorithms
+6. **validateDateFormat()** - ISO 8601 date validation (30 tests)
+   - Formats: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, with optional milliseconds and timezone
+   - Validates: month (1-12), day (1-31), leap years, time components
+   - Rejects: impossible dates (Feb 30, April 31), invalid time (24:00:00), wrong format
+
+**Test coverage:**
+
+- ✅ Valid inputs for all validators with multiple format variations
+- ✅ Invalid inputs with comprehensive edge cases
+- ✅ Null/undefined/empty string handling across all validators
+- ✅ Integration tests: multiple validators in sequence
+- ✅ Performance tests: 1000 validations in <100ms (URLs, emails, colors, UUIDs, ISBNs), <200ms (dates)
+
+**Validation examples:**
+
+| Validator | Valid Input | Invalid Input |
+| --- | --- | --- |
+| **URL** | `https://example.com/path` | `example.com` (no protocol) |
+| | `http://localhost:3000` | `javascript:alert(1)` (invalid protocol) |
+| | `ftp://files.example.com` | `http://example..com` (double dots) |
+| **Email** | `user@example.com` | `user@example` (no TLD) |
+| | `first.last+tag@example.co.uk` | `user @example.com` (space) |
+| **Hex Color** | `#FFFFFF`, `#FFF` | `FFFFFF` (no #) |
+| | `#a1b2c3` (case-insensitive) | `#GGGGGG` (invalid chars) |
+| **UUID** | `550e8400-e29b-41d4-a716-446655440000` | `550e8400-e29b-31d4-a716-446655440000` (wrong version) |
+| | `12345678-1234-4234-8234-123456789012` | `550e8400e29b41d4a716446655440000` (no hyphens) |
+| **ISBN-10** | `0306406152`, `0-306-40615-2` | `0306406153` (wrong check digit) |
+| | `043942089X` (X check digit) | `0X06406152` (X in wrong position) |
+| **ISBN-13** | `9780306406157`, `978-0-306-40615-7` | `9780306406158` (wrong check digit) |
+| **Date** | `2024-01-15`, `2024-01-15T10:30:45Z` | `2024-02-30` (impossible date) |
+| | `2024-02-29` (leap year valid) | `2023-02-29` (non-leap year) |
+
+**Technical highlights:**
+
+- RFC 3986 URL validation with protocol checking
+- RFC 5322 email regex with TLD requirement
+- UUID v4 format validation with version/variant checks
+- ISBN-10 modulo 11 algorithm with X check digit support
+- ISBN-13 modulo 10 algorithm with alternating weights
+- ISO 8601 date validation with impossible date detection
+- Comprehensive null/undefined/empty string handling
+- Performance optimized (1000+ validations in <200ms)
+- Production-ready code quality with full test coverage
+- Integration-ready for form validation and data sanitization
+
+**Use cases in SmartShelf:**
+
+- **URL validation**: Validate URLs before saving to content repository
+- **Email validation**: Validate API token email addresses
+- **Color validation**: Validate category color choices in UI
+- **UUID validation**: Validate connection IDs and API tokens
+- **ISBN validation**: Validate physical item ISBNs for Internet Archive API
+- **Date validation**: Validate date inputs in search filters and content metadata
+- **Form validation**: Comprehensive validation for user inputs across extension
+- **Data sanitization**: Ensure data quality before storage operations
 
 ---
 
