@@ -7,14 +7,20 @@ console.log('SmartShelf Service Worker loaded')
 importScripts('../shared/services/ai-connection-discovery.js')
 importScripts('../shared/models/connection.js')
 importScripts('../shared/services/export-api-gateway.js')
+importScripts('../shared/services/ai-writer.js')
+importScripts('../shared/services/content-processing-pipeline.js')
+importScripts('../shared/services/ai-processing-queue.js')
 
 // Global AI session management
 let aiSession = null
 let summarizerSession = null
 let connectionDiscoveryService = null
+let aiWriterService = null
 let exportAPIGateway = null
-// let processingQueue = [] // TODO: Implement queue processing
-// let isProcessingQueue = false // TODO: Implement queue processing
+let contentProcessingPipeline = null
+let aiProcessingQueue = null
+
+
 
 // Chrome Extension lifecycle
 chrome.runtime.onInstalled.addListener((details) => {
@@ -62,13 +68,21 @@ async function initializeExtension() {
       console.log('Local data structures initialized')
     }
 
-    // Initialize AI Connection Discovery Service
-    connectionDiscoveryService = new AIConnectionDiscoveryService()
-    await connectionDiscoveryService.initialize()
+        // Initialize AI Connection Discovery Service
+    await initializeConnectionDiscovery()
+
+    // Initialize AI Writer Service
+    await initializeAIWriterService()
 
     // Initialize Export-Only API Gateway
     exportAPIGateway = new ExportOnlyAPIGateway()
     await exportAPIGateway.initialize()
+    
+    // Initialize Content Processing Pipeline
+    await initializeContentProcessingPipeline()
+    
+    // Initialize AI Processing Queue
+    await initializeAIProcessingQueue()
   } catch (error) {
     console.error('Failed to initialize extension:', error)
   }
@@ -148,6 +162,94 @@ async function initializeConnectionDiscovery() {
   } catch (error) {
     console.error('Failed to initialize Connection Discovery service:', error)
     connectionDiscoveryService = null
+  }
+}
+
+// Initialize AI Writer Service
+async function initializeAIWriterService() {
+  try {
+    aiWriterService = new AIWriterService()
+    const initialized = await aiWriterService.initialize()
+
+    if (initialized) {
+      console.log('AI Writer service initialized successfully')
+    } else {
+      console.warn('AI Writer service initialization failed - Chrome Built-in AI Writer/Rewriter may not be available')
+    }
+  } catch (error) {
+    console.error('Failed to initialize AI Writer service:', error)
+    aiWriterService = null
+  }
+}
+
+// Initialize Content Processing Pipeline
+async function initializeContentProcessingPipeline() {
+  try {
+    // Create mock services for the pipeline (will be replaced with actual services later)
+    const storageService = {
+      get: (key) => chrome.storage.local.get(key),
+      set: (data) => chrome.storage.local.set(data)
+    }
+    
+    const contentRepository = null // Will use default implementation
+    const searchService = null // Will use default implementation  
+    const aiServices = null // Will use default implementation
+    
+    contentProcessingPipeline = new ContentProcessingPipeline(
+      storageService,
+      contentRepository,
+      searchService,
+      aiServices
+    )
+    
+    console.log('Content Processing Pipeline initialized successfully')
+  } catch (error) {
+    console.error('Failed to initialize Content Processing Pipeline:', error)
+    contentProcessingPipeline = null
+  }
+}
+
+// Initialize AI Processing Queue
+async function initializeAIProcessingQueue() {
+  try {
+    // Create storage service for the queue
+    const storageService = {
+      get: (key) => chrome.storage.local.get(key),
+      set: (key, data) => chrome.storage.local.set({ [key]: data })
+    }
+    
+    // Create AI services for the queue
+    const aiServices = {
+      processContent: processContentWithAI
+    }
+    
+    aiProcessingQueue = new AIProcessingQueue(storageService, aiServices)
+    await aiProcessingQueue.initialize()
+    
+    console.log('AI Processing Queue initialized successfully')
+    
+    // Set up event listeners
+    aiProcessingQueue.addEventListener('queueUpdate', (event) => {
+      // Notify UI components about queue updates
+      chrome.runtime.sendMessage({
+        type: 'queue_update',
+        data: event.detail
+      }).catch(() => {
+        // No listeners, which is fine
+      })
+    })
+    
+    aiProcessingQueue.addEventListener('itemProcessed', (event) => {
+      console.log('Item processed successfully:', event.detail.itemId)
+    })
+    
+    aiProcessingQueue.addEventListener('itemFailed', (event) => {
+      console.error('Item processing failed:', event.detail.itemId, event.detail.error)
+    })
+    
+  } catch (error) {
+    console.error('Failed to initialize AI Processing Queue:', error)
+    aiProcessingQueue = null
   }
 }
 
@@ -591,6 +693,84 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const apiStats = getAPIUsageStats()
       sendResponse({ success: true, data: apiStats })
       break
+
+    case 'generate_insights':
+      generateContentInsights(request.contentItem)
+        .then(insights => sendResponse({ success: true, data: insights }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'enhance_notes':
+      enhanceUserNotes(request.notes, request.contentItem)
+        .then(enhancedNotes => sendResponse({ success: true, data: enhancedNotes }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'generate_takeaways':
+      generateContentTakeaways(request.contentItem)
+        .then(takeaways => sendResponse({ success: true, data: takeaways }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'generate_study_questions':
+      generateStudyQuestions(request.contentItem)
+        .then(questions => sendResponse({ success: true, data: questions }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'generate_connection_analysis':
+      generateConnectionAnalysis(request.sourceItem, request.targetItem, request.connection)
+        .then(analysis => sendResponse({ success: true, data: analysis }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'generate_research_outline':
+      generateResearchOutline(request.items, request.topic)
+        .then(outline => sendResponse({ success: true, data: outline }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'get_writer_service_stats':
+      const writerStats = getWriterServiceStats()
+      sendResponse({ success: true, data: writerStats })
+      break
+
+    // AI Processing Queue operations
+    case 'queue_enqueue_item':
+      enqueueItemForProcessing(request.contentItem, request.priority)
+        .then(itemId => sendResponse({ success: true, data: { itemId } }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'queue_get_status':
+      getQueueStatus()
+        .then(status => sendResponse({ success: true, data: status }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'queue_get_position':
+      getQueuePosition(request.itemId)
+        .then(position => sendResponse({ success: true, data: { position } }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'queue_remove_item':
+      removeItemFromQueue(request.itemId)
+        .then(removed => sendResponse({ success: true, data: { removed } }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'queue_get_statistics':
+      getQueueStatistics()
+        .then(stats => sendResponse({ success: true, data: stats }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
+
+    case 'queue_get_analytics':
+      getQueueAnalytics()
+        .then(analytics => sendResponse({ success: true, data: analytics }))
+        .catch(error => sendResponse({ success: false, error: error.message }))
+      return true
   }
 })
 
@@ -855,4 +1035,215 @@ function getAPIUsageStats() {
     isAvailable: true,
     ...exportAPIGateway.getUsageStats()
   }
+}
+
+// AI Writer Service Functions
+
+/**
+ * Generate AI insights for a content item
+ * @param {Object} contentItem - The content item to analyze
+ * @returns {Promise<string>} Generated insights
+ */
+async function generateContentInsights(contentItem) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      throw new Error('AI Writer service not available')
+    }
+
+    return await aiWriterService.generateInsights(contentItem)
+  } catch (error) {
+    console.error('Failed to generate insights:', error)
+    throw error
+  }
+}
+
+/**
+ * Enhance user notes with AI suggestions
+ * @param {string} notes - Current user notes
+ * @param {Object} contentItem - Related content item
+ * @returns {Promise<string>} Enhanced notes
+ */
+async function enhanceUserNotes(notes, contentItem) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      console.warn('AI Writer service not available, returning original notes')
+      return notes
+    }
+
+    return await aiWriterService.enhanceNotes(notes, contentItem)
+  } catch (error) {
+    console.error('Failed to enhance notes:', error)
+    return notes // Return original notes on error
+  }
+}
+
+/**
+ * Generate key takeaways from content
+ * @param {Object} contentItem - The content item to analyze
+ * @returns {Promise<Array>} Array of takeaways
+ */
+async function generateContentTakeaways(contentItem) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      throw new Error('AI Writer service not available')
+    }
+
+    return await aiWriterService.generateTakeaways(contentItem)
+  } catch (error) {
+    console.error('Failed to generate takeaways:', error)
+    throw error
+  }
+}
+
+/**
+ * Generate study questions for content
+ * @param {Object} contentItem - The content item to create questions for
+ * @returns {Promise<Array>} Array of study questions
+ */
+async function generateStudyQuestions(contentItem) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      throw new Error('AI Writer service not available')
+    }
+
+    return await aiWriterService.generateStudyQuestions(contentItem)
+  } catch (error) {
+    console.error('Failed to generate study questions:', error)
+    throw error
+  }
+}
+
+/**
+ * Generate connection analysis between two items
+ * @param {Object} sourceItem - First content item
+ * @param {Object} targetItem - Second content item
+ * @param {Object} connection - Connection object
+ * @returns {Promise<string>} Connection analysis
+ */
+async function generateConnectionAnalysis(sourceItem, targetItem, connection) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      throw new Error('AI Writer service not available')
+    }
+
+    return await aiWriterService.generateConnectionAnalysis(sourceItem, targetItem, connection)
+  } catch (error) {
+    console.error('Failed to generate connection analysis:', error)
+    throw error
+  }
+}
+
+/**
+ * Generate research outline from multiple items
+ * @param {Array} items - Array of content items
+ * @param {string} topic - Research topic
+ * @returns {Promise<string>} Research outline
+ */
+async function generateResearchOutline(items, topic) {
+  try {
+    if (!aiWriterService || !aiWriterService.isReady()) {
+      throw new Error('AI Writer service not available')
+    }
+
+    return await aiWriterService.generateResearchOutline(items, topic)
+  } catch (error) {
+    console.error('Failed to generate research outline:', error)
+    throw error
+  }
+}
+
+/**
+ * Get AI Writer service statistics
+ * @returns {Object} Service statistics
+ */
+function getWriterServiceStats() {
+  if (!aiWriterService) {
+    return {
+      isAvailable: false,
+      message: 'AI Writer service not available'
+    }
+  }
+
+  return {
+    isAvailable: true,
+    ...aiWriterService.getStats()
+  }
+}
+
+// AI Processing Queue Functions
+
+/**
+ * Enqueue item for AI processing
+ * @param {Object} contentItem - Content item to process
+ * @param {string} priority - Processing priority (high, normal, low)
+ * @returns {Promise<string>} Item ID in queue
+ */
+async function enqueueItemForProcessing(contentItem, priority = 'normal') {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.enqueue(contentItem, priority)
+}
+
+/**
+ * Get queue status
+ * @returns {Promise<Object>} Queue status
+ */
+async function getQueueStatus() {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.getQueueStatus()
+}
+
+/**
+ * Get queue position for item
+ * @param {string} itemId - Item ID
+ * @returns {Promise<number>} Queue position
+ */
+async function getQueuePosition(itemId) {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.getQueuePosition(itemId)
+}
+
+/**
+ * Remove item from queue
+ * @param {string} itemId - Item ID to remove
+ * @returns {Promise<boolean>} Success status
+ */
+async function removeItemFromQueue(itemId) {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.removeFromQueue(itemId)
+}
+
+/**
+ * Get queue statistics
+ * @returns {Promise<Object>} Queue statistics
+ */
+async function getQueueStatistics() {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.getStatistics()
+}
+
+/**
+ * Get queue analytics
+ * @returns {Promise<Object>} Queue analytics
+ */
+async function getQueueAnalytics() {
+  if (!aiProcessingQueue) {
+    throw new Error('AI Processing Queue not available')
+  }
+
+  return await aiProcessingQueue.getAnalytics()
 }
