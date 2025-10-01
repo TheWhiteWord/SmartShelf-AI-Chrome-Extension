@@ -27,12 +27,12 @@ function estimateReadingTime(content, wordsPerMinute = 200) {
   }
 
   const words = content.trim().split(/\s+/).filter(word => word.length > 0).length
-  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute))
+  const minutes = words === 0 ? 0 : Math.max(1, Math.ceil(words / wordsPerMinute))
 
   return {
     words,
     minutes,
-    text: minutes === 1 ? '1 min read' : `${minutes} min read`
+    text: minutes === 0 ? '0 min read' : minutes === 1 ? '1 min read' : `${minutes} min read`
   }
 }
 
@@ -215,13 +215,14 @@ function detectSpamContent(content, title = '', pageData = {}) {
     }
   }
 
-  const text = `${title} ${content}`.toLowerCase()
   const indicators = []
+  const originalText = `${title} ${content}`
+  const text = originalText.toLowerCase()
 
-  // Check for excessive capitalization
-  const capsCount = (text.match(/[A-Z]/g) || []).length
-  const totalLetters = (text.match(/[a-zA-Z]/g) || []).length
-  if (totalLetters > 0 && capsCount / totalLetters > 0.3) {
+  // Check for excessive capitalization (use original text before lowercasing)
+  const capsCount = (originalText.match(/[A-Z]/g) || []).length
+  const totalLetters = (originalText.match(/[a-zA-Z]/g) || []).length
+  if (totalLetters > 20 && capsCount / totalLetters > 0.3) {
     indicators.push('excessive_capitalization')
   }
 
@@ -237,7 +238,8 @@ function detectSpamContent(content, title = '', pageData = {}) {
     'free trial', 'risk free', 'money back', 'guarantee', 'winner',
     'congratulations', 'you won', 'claim now', 'urgent', 'hurry',
     'special offer', 'discount', 'save money', 'lowest price',
-    'viagra', 'casino', 'lottery', 'weight loss', 'make money fast'
+    'viagra', 'casino', 'lottery', 'weight loss', 'make money',
+    'earn $', 'work from home', 'shocking', 'miracle', 'doctors hate'
   ]
   const promoMatches = promoKeywords.filter(keyword => text.includes(keyword))
   if (promoMatches.length >= 3) {
@@ -277,10 +279,39 @@ function detectSpamContent(content, title = '', pageData = {}) {
   }
 
   // Check for repetitive content
-  const sentences = content.split(/[.!?]+/)
-  const uniqueSentences = new Set(sentences.map(s => s.trim().toLowerCase()))
-  if (sentences.length > 5 && uniqueSentences.size / sentences.length < 0.5) {
-    indicators.push('repetitive_content')
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  if (sentences.length > 5) {
+    const uniqueSentences = new Set(sentences.map(s => s.trim().toLowerCase()))
+    if (uniqueSentences.size / sentences.length < 0.5) {
+      indicators.push('repetitive_content')
+    }
+  }
+
+  // Check for ALL CAPS words (another spam indicator)
+  const capsWords = originalText.match(/\b[A-Z]{3,}\b/g) || []
+  if (capsWords.length >= 3) {
+    indicators.push('excessive_caps_words')
+  }
+
+  // Check for currency symbols and prices (common in spam)
+  const currencyMatches = (originalText.match(/[$€£¥₹]\d+/g) || []).length
+  if (currencyMatches >= 1) {
+    indicators.push('price_emphasis')
+  }
+
+  // Check for "FREE" or "free" emphasis (very common in spam)
+  if (/\bFREE\b/i.test(originalText) && /[!]{2,}/.test(originalText)) {
+    indicators.push('free_offer_emphasis')
+  }
+
+  // Check for urgency words combined with exclamation
+  const urgencyWords = ['now', 'today', 'immediately', 'hurry', 'fast', 'quick']
+  const urgencyCount = urgencyWords.filter(word => {
+    const regex = new RegExp(`\\b${word}\\b[^.]{0,20}!`, 'i')
+    return regex.test(originalText)
+  }).length
+  if (urgencyCount >= 2) {
+    indicators.push('urgency_tactics')
   }
 
   // Determine if content is spam
