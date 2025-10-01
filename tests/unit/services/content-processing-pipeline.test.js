@@ -38,7 +38,8 @@ describe('Content Processing Pipeline (T066)', () => {
     mockContentRepository = {
       save: jest.fn(),
       update: jest.fn(),
-      getById: jest.fn()
+      getById: jest.fn(),
+      delete: jest.fn()
     }
 
     mockSearchService = {
@@ -256,6 +257,15 @@ describe('Content Processing Pipeline (T066)', () => {
     test('should track pipeline metrics', async () => {
       const contentItem = { id: 'test-item-1', title: 'Test', content: 'Content' }
       
+      // Set up proper mock responses
+      mockAIServices.processContent.mockResolvedValue({
+        summary: 'Test summary',
+        categories: ['Technology'],
+        tags: ['test', 'ai']
+      })
+      mockContentRepository.save.mockResolvedValue(contentItem)
+      mockSearchService.updateIndex.mockResolvedValue(true)
+      
       await pipeline.processSingle(contentItem)
       
       const metrics = await pipeline.getMetrics()
@@ -274,11 +284,13 @@ describe('Content Processing Pipeline (T066)', () => {
     })
 
     test('should identify performance bottlenecks', async () => {
-      // Simulate slow AI processing
+      // Simulate slow AI processing (but successful)
       mockAIServices.processContent.mockImplementation(async () => {
         await new Promise(resolve => setTimeout(resolve, 2000))
-        return { summary: 'Test', categories: [], tags: [] }
+        return { summary: 'Test summary', categories: ['Technology'], tags: ['test'] }
       })
+      mockContentRepository.save.mockResolvedValue({ id: 'test-item-1' })
+      mockSearchService.updateIndex.mockResolvedValue(true)
 
       const contentItem = { id: 'test-item-1', title: 'Test', content: 'Content' }
       await pipeline.processSingle(contentItem)
@@ -378,6 +390,15 @@ describe('Content Processing Pipeline (T066)', () => {
         { id: 'item-2', title: 'Test 2', content: 'Content 2' },
         { id: 'item-3', title: 'Test 3', content: 'Content 3' }
       ]
+
+      // Set up proper mock responses for batch processing
+      mockAIServices.processContent.mockResolvedValue({
+        summary: 'Test summary',
+        categories: ['Technology'],
+        tags: ['test', 'batch']
+      })
+      mockContentRepository.save.mockImplementation(async (item) => item)
+      mockSearchService.updateIndex.mockResolvedValue(true)
 
       const batchId = await pipeline.processBatch(contentItems)
       await pipeline.waitForBatchCompletion(batchId)

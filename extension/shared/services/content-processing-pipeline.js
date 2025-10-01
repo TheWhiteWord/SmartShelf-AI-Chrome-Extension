@@ -63,6 +63,13 @@ class ContentProcessingPipeline extends EventTarget {
   }
   
   /**
+   * Add event listener compatibility method (.on() for tests)
+   */
+  on(eventName, callback) {
+    this.addEventListener(eventName, (event) => callback(event.detail))
+  }
+  
+  /**
    * Get current pipeline configuration
    */
   getConfiguration() {
@@ -101,7 +108,8 @@ class ContentProcessingPipeline extends EventTarget {
     // Check if we can process immediately or need to queue
     if (this.activePipelines.size < this.config.maxConcurrentPipelines) {
       this.activePipelines.set(pipelineId, pipeline)
-      this.processPipelineAsync(pipelineId)
+      // Defer processing to next tick to allow status check
+      setTimeout(() => this.processPipelineAsync(pipelineId), 0)
     } else {
       pipeline.stage = 'queued'
       this.pipelineQueue.push(pipeline)
@@ -272,27 +280,45 @@ class ContentProcessingPipeline extends EventTarget {
     if (!pipeline) throw new Error(`Pipeline ${pipelineId} not found`)
     
     const stages = ['validation', 'aiProcessing', 'storage', 'indexing', 'postProcessing']
+    const maxRetries = 3
     
     for (let i = 0; i < stages.length; i++) {
       const stage = stages[i]
       const stageStartTime = Date.now()
+      let retryCount = 0
+      let stageSuccess = false
+      let lastError = null
       
-      try {
-        await this.executeStage(pipelineId, stage)
-        
-        // Update metrics
-        const stageTime = Date.now() - stageStartTime
-        this.updateStageMetrics(stage, stageTime, true)
-        
-        pipeline.completedStages.push(stage)
-        pipeline.progress = Math.round(((i + 1) / stages.length) * 100)
-        
-        this.emitProgress(pipelineId, stage, pipeline.progress)
-        
-      } catch (error) {
-        const stageTime = Date.now() - stageStartTime
-        this.updateStageMetrics(stage, stageTime, false)
-        throw new Error(`Stage ${stage} failed: ${error.message}`)
+      while (retryCount < maxRetries && !stageSuccess) {
+        try {
+          await this.executeStage(pipelineId, stage)
+          stageSuccess = true
+          
+          // Update metrics
+          const stageTime = Date.now() - stageStartTime
+          this.updateStageMetrics(stage, stageTime, true)
+          
+          pipeline.completedStages.push(stage)
+          pipeline.progress = Math.round(((i + 1) / stages.length) * 100)
+          
+          this.emitProgress(pipelineId, stage, pipeline.progress)
+          
+        } catch (error) {
+          lastError = error
+          retryCount++
+          
+          if (retryCount < maxRetries) {
+            // Exponential backoff: 100ms, 200ms, 400ms
+            const backoffDelay = Math.pow(2, retryCount - 1) * 100
+            await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            pipeline.retryAttempts++
+          } else {
+            // Final failure
+            const stageTime = Date.now() - stageStartTime
+            this.updateStageMetrics(stage, stageTime, false)
+            throw new Error(`Stage ${stage} failed: ${error.message}`)
+          }
+        }
       }
     }
     
@@ -366,10 +392,23 @@ class ContentProcessingPipeline extends EventTarget {
   async processWithAI(pipeline) {
     const { contentItem } = pipeline
     
+    // Save original data for rollback
+    const originalData = {
+      summary: contentItem.summary,
+      tags: contentItem.tags ? [...contentItem.tags] : [],
+      categories: contentItem.categories ? [...contentItem.categories] : [],
+      aiProcessed: contentItem.aiProcessed
+    }
+    
     // Use AI services if available, otherwise use fallback
     let aiResult
     if (this.aiServices && this.aiServices.processContent) {
       aiResult = await this.aiServices.processContent(contentItem)
+      
+      // Validate AI result
+      if (!aiResult || typeof aiResult !== 'object') {
+        throw new Error('AI service returned invalid result')
+      }
     } else {
       // Fallback AI processing
       aiResult = {
@@ -380,21 +419,16 @@ class ContentProcessingPipeline extends EventTarget {
     }
     
     // Update content item with AI results
-    contentItem.summary = aiResult.summary
-    contentItem.tags = aiResult.tags || []
-    contentItem.categories = aiResult.categories || []
+    contentItem.summary = aiResult.summary || ''
+    contentItem.tags = Array.isArray(aiResult.tags) ? aiResult.tags : []
+    contentItem.categories = Array.isArray(aiResult.categories) ? aiResult.categories : []
     contentItem.aiProcessed = true
     contentItem.dateModified = new Date().toISOString()
     
     pipeline.rollbackActions.push({
       stage: 'aiProcessing',
       action: 'revert_ai_data',
-      originalData: {
-        summary: pipeline.contentItem.summary,
-        tags: pipeline.contentItem.tags,
-        categories: pipeline.contentItem.categories,
-        aiProcessed: pipeline.contentItem.aiProcessed
-      }
+      originalData
     })
   }
   
@@ -461,10 +495,15 @@ class ContentProcessingPipeline extends EventTarget {
     const pipeline = this.activePipelines.get(pipelineId)
     if (!pipeline) return
     
+    // Extract original stage from error message if available
+    const stageMatch = error.message.match(/Stage (\w+) failed:/)
+    const failedStage = stageMatch ? stageMatch[1] : pipeline.stage
+    const originalMessage = stageMatch ? error.message.replace(/Stage \w+ failed: /, '') : error.message
+    
     pipeline.stage = 'failed'
     pipeline.error = {
-      stage: pipeline.stage,
-      message: error.message,
+      stage: failedStage,
+      message: originalMessage,
       timestamp: new Date().toISOString()
     }
     
@@ -561,12 +600,23 @@ class ContentProcessingPipeline extends EventTarget {
     const bottlenecks = []
     const stageMetrics = this.metrics.stageMetrics
     
+    // Calculate average time across all stages
+    const allStageTimes = Object.values(stageMetrics)
+      .filter(m => m.successCount > 0)
+      .map(m => m.totalTime / m.successCount)
+    
+    const avgAllStages = allStageTimes.length > 0 
+      ? allStageTimes.reduce((sum, time) => sum + time, 0) / allStageTimes.length 
+      : 0
+    
     Object.keys(stageMetrics).forEach(stage => {
       const metrics = stageMetrics[stage]
       const avgTime = metrics.successCount > 0 ? metrics.totalTime / metrics.successCount : 0
       
-      // Consider stages taking > 10s as bottlenecks
-      if (avgTime > 10000) {
+      // Consider stages taking > 1s as bottlenecks OR 2x slower than average
+      const isBottleneck = avgTime > 1000 || (avgAllStages > 0 && avgTime > avgAllStages * 2)
+      
+      if (isBottleneck && avgTime > 0) {
         bottlenecks.push({
           stage,
           averageTime: avgTime,

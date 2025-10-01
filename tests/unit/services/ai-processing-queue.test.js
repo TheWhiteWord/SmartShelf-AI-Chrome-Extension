@@ -255,6 +255,10 @@ describe('Background AI Processing Queue (T067)', () => {
       const itemId = await queue.enqueue({ title: 'Failing Item' })
       await queue.startProcessing()
       await queue.waitForCompletion()
+      
+      // Wait for retries to complete (with exponential backoff + jitter: ~1000ms + ~2000ms + processing)
+      await new Promise(resolve => setTimeout(resolve, 3500))
+      await queue.waitForCompletion()
 
       const completedItem = await queue.getProcessingResult(itemId)
       expect(completedItem.success).toBe(true)
@@ -267,6 +271,10 @@ describe('Background AI Processing Queue (T067)', () => {
 
       const itemId = await queue.enqueue({ title: 'Always Failing Item' })
       await queue.startProcessing()
+      await queue.waitForCompletion()
+      
+      // Wait for all retries to complete (3 attempts with exponential backoff + jitter: ~1000ms + ~2000ms + ~4000ms)
+      await new Promise(resolve => setTimeout(resolve, 7500))
       await queue.waitForCompletion()
 
       const deadLetterItems = await queue.getDeadLetterQueue()
@@ -431,6 +439,10 @@ describe('Background AI Processing Queue (T067)', () => {
 
       await queue.enqueue({ title: 'Retry Test' })
       await queue.startProcessing()
+      await queue.waitForCompletion()
+      
+      // Wait for all retries to complete (3 attempts: 100ms + 200ms + 400ms)
+      await new Promise(resolve => setTimeout(resolve, 1000))
       await queue.waitForCompletion()
 
       expect(retryTimes).toHaveLength(3)
