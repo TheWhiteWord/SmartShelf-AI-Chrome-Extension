@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: Chrome DevTools MCP Testing API Contracts
+  description: API contracts for automated Chrome Extension testing workflows using MCP
+  version: 1.0.0
+
+paths:
+  # MCP Test Session Management
+  /mcp/session/create:
+    post:
+      summary: Create new MCP testing session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionName
+                - extensionPath
+              properties:
+                sessionName:
+                  type: string
+                  maxLength: 100
+                extensionPath:
+                  type: string
+                  description: Absolute path to Chrome Extension directory
+                chromeExecutable:
+                  type: string
+                  description: Path to Chrome executable (optional)
+                workflows:
+                  type: array
+                  items:
+                    type: string
+                    enum: [extension_loading, ai_api_validation, content_capture, ui_testing, performance_profiling]
+                timeout:
+                  type: integer
+                  default: 300000
+                  description: Session timeout in milliseconds
+      responses:
+        '201':
+          description: MCP test session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPTestSession'
+        '400':
+          description: Invalid session configuration
+        '500':
+          description: MCP initialization error
+
+  /mcp/session/{sessionId}/execute:
+    post:
+      summary: Execute MCP testing workflows
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflows:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TestWorkflow'
+      responses:
+        '200':
+          description: Workflows executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationResult'
+        '404':
+          description: Session not found
+        '409':
+          description: Session already running
+
+  # Chrome Extension Loading
+  /mcp/extension/load:
+    post:
+      summary: Load Chrome Extension in Developer Mode via MCP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - extensionPath
+              properties:
+                extensionPath:
+                  type: string
+                validateManifest:
+                  type: boolean
+                  default: true
+                captureScreenshot:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Extension loaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  extensionId:
+                    type: string
+                  loadTime:
+                    type: number
+                  components:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExtensionComponent'
+        '400':
+          description: Invalid extension or manifest errors
+
+  # Chrome Built-in AI API Testing
+  /mcp/ai/validate:
+    post:
+      summary: Validate Chrome Built-in AI API availability and functionality
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - apis
+              properties:
+                apis:
+                  type: array
+                  items:
+                    type: string
+                    enum: [LanguageModel, Summarizer, Writer, Rewriter, Translator]
+                testContent:
+                  type: string
+                  description: Sample content for API testing
+                performanceThresholds:
+                  type: object
+                  properties:
+                    maxInitTime:
+                      type: number
+                      default: 5000
+                    maxResponseTime:
+                      type: number
+                      default: 5000
+      responses:
+        '200':
+          description: AI API validation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChromeAIAPI'
+        '503':
+          description: AI APIs unavailable
+
+  # Content Capture Workflow Testing
+  /mcp/content/capture:
+    post:
+      summary: Test content capture workflows via MCP automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - testUrls
+              properties:
+                testUrls:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                captureMethod:
+                  type: string
+                  enum: [popup, keyboard_shortcut, context_menu]
+                  default: popup
+                validateAIProcessing:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Content capture testing completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  captureResults:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        captureSuccess:
+                          type: boolean
+                        processingTime:
+                          type: number
+                        aiSummary:
+                          type: string
+                        categories:
+                          type: array
+                          items:
+                            type: string
+
+  # Performance Profiling
+  /mcp/performance/profile:
+    post:
+      summary: Execute performance profiling during extension workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - profileType
+              properties:
+                profileType:
+                  type: string
+                  enum: [ai_processing, search_response, extension_startup, memory_usage]
+                duration:
+                  type: integer
+                  default: 60000
+                  description: Profiling duration in milliseconds
+                sampleRate:
+                  type: integer
+                  default: 1000
+                  description: Sampling interval in milliseconds
+      responses:
+        '200':
+          description: Performance profiling completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PerformanceMetric'
+                  summary:
+                    type: object
+                    properties:
+                      averageResponseTime:
+                        type: number
+                      peakMemoryUsage:
+                        type: number
+                      successRate:
+                        type: number
+
+components:
+  schemas:
+    MCPTestSession:
+      type: object
+      properties:
+        id:
+          type: string
+        sessionName:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [initializing, running, completed, failed, aborted]
+        chromeVersion:
+          type: string
+        extensionVersion:
+          type: string
+        results:
+          type: object
+        screenshots:
+          type: array
+          items:
+            type: string
+
+    TestWorkflow:
+      type: object
+      properties:
+        id:
+          type: string
+        workflowType:
+          type: string
+          enum: [extension_loading, ai_api_validation, content_capture, ui_testing, performance_profiling]
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, passed, failed, skipped]
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/MCPCommand'
+        duration:
+          type: number
+
+    MCPCommand:
+      type: object
+      properties:
+        id:
+          type: string
+        commandType:
+          type: string
+          enum: [navigate_page, evaluate_script, click, take_screenshot, list_console_messages]
+        parameters:
+          type: object
+        success:
+          type: boolean
+        responseTime:
+          type: number
+        output:
+          type: object
+
+    ValidationResult:
+      type: object
+      properties:
+        id:
+          type: string
+        validationType:
+          type: string
+          enum: [functional, performance, visual, api_response, error_handling]
+        testName:
+          type: string
+        expected:
+          type: string
+        actual:
+          type: string
+        passed:
+          type: boolean
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+        evidence:
+          type: object
+
+    PerformanceMetric:
+      type: object
+      properties:
+        id:
+          type: string
+        metricType:
+          type: string
+          enum: [ai_processing_time, search_response_time, extension_load_time, memory_usage, cpu_usage]
+        value:
+          type: number
+        unit:
+          type: string
+        threshold:
+          type: number
+        passed:
+          type: boolean
+
+    ExtensionComponent:
+      type: object
+      properties:
+        id:
+          type: string
+        componentType:
+          type: string
+          enum: [service_worker, content_script, popup, sidepanel, options_page]
+        name:
+          type: string
+        loadStatus:
+          type: string
+          enum: [loaded, failed, not_found]
+        testCoverage:
+          type: number
+
+    ChromeAIAPI:
+      type: object
+      properties:
+        id:
+          type: string
+        apiName:
+          type: string
+          enum: [LanguageModel, Summarizer, Writer, Rewriter, Translator]
+        availability:
+          type: string
+          enum: [available, unavailable, downloading, error]
+        initializationTime:
+          type: number
+        averageResponseTime:
+          type: number
+        successRate:
+          type: number
