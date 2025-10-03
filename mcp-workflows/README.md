@@ -1,29 +1,40 @@
 # SmartShelf Chrome Extension - MCP Testing Guide
 
-## Quick MCP Commands for Extension Testing
+**Status**: ✅ Working with Flatpak Chrome Dev
 
-### 1. Extension Loading & Validation
+## Quick Start
+
+### 1. Automated Extension Loading & Testing
+
+```bash
+# Load SmartShelf extension in Chrome Dev and run tests
+node mcp-workflows/run-flatpak-tests.js
+```
+
+### 2. VS Code Copilot Chat Integration
+
+After running the automated test, use these commands in VS Code Copilot Chat:
 
 ```javascript
-// Navigate to extensions page and enable developer mode
-@chrome-devtools navigate_page('chrome://extensions/')
-@chrome-devtools evaluate_script('document.getElementById("developer-mode").checked || document.getElementById("developer-mode").click()')
+// Navigate to extensions page
+@chrome-devtools Navigate to chrome://extensions/
 
-// Find SmartShelf extension ID after loading
+// Check extension status
 @chrome-devtools evaluate_script(`
-  const ext = Array.from(document.querySelectorAll('extensions-item'))
-    .find(item => item.shadowRoot?.querySelector('#name')?.textContent?.includes('SmartShelf'));
+  // Find SmartShelf extension
+  const extensions = document.querySelectorAll('extensions-item');
+  const smartShelf = Array.from(extensions).find(item => 
+    item.shadowRoot?.querySelector('#name')?.textContent?.includes('SmartShelf')
+  );
   
-  if (ext) {
+  if (smartShelf) {
     console.log('✅ SmartShelf Extension Found:', {
-      id: ext.getAttribute('id'),
-      name: ext.shadowRoot.querySelector('#name').textContent,
-      enabled: ext.shadowRoot.querySelector('#enable-toggle').checked
+      id: smartShelf.getAttribute('id'),
+      name: smartShelf.shadowRoot.querySelector('#name').textContent,
+      enabled: smartShelf.shadowRoot.querySelector('#enable-toggle')?.checked
     });
-    return ext.getAttribute('id');
   } else {
     console.log('❌ SmartShelf extension not found');
-    return null;
   }
 `)
 ```
@@ -223,9 +234,14 @@
 
 ## Usage
 
-1. Copy individual command blocks into VS Code GitHub Copilot Chat
-2. Replace `YOUR_EXTENSION_ID_HERE` with actual extension ID from step 1
-3. Run commands sequentially for complete validation
-4. Check console output for detailed results
+1. **Automated Testing**: Run `node mcp-workflows/run-flatpak-tests.js`
+2. **Manual Testing**: Copy command blocks into VS Code GitHub Copilot Chat
+3. **Replace Extension ID**: Use actual extension ID from automated test output
+4. **Verify Results**: Check console output for detailed validation
 
-This streamlined approach provides all essential testing capabilities without complex workflow files!
+## Current Status
+
+✅ **T031 Extension Loading**: Completed and tested with Flatpak Chrome Dev  
+🔄 **T032-T036**: Ready for implementation using established MCP infrastructure
+
+This setup provides real Chrome extension testing with MCP automation!
