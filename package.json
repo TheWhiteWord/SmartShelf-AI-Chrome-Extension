@@ -51,7 +51,8 @@
     "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "chrome-devtools-mcp": "^0.6.0"
+    "chrome-devtools-mcp": "^0.6.0",
+    "ws": "^8.18.3"
   },
   "engines": {
     "node": ">=18.0.0",
