@@ -1,0 +1,65 @@
+{
+  "extensionConfiguration": {
+    "manifestVersion": 3,
+    "extensionPath": "/media/theww/AI/Code/AI/Google_Chrome_Built_In/extension",
+    "loadingStrategy": "developer_mode_unpacked",
+    "requiredComponents": [
+      "service_worker",
+      "content_scripts", 
+      "popup",
+      "sidepanel",
+      "options_page"
+    ],
+    "requiredPermissions": [
+      "storage",
+      "activeTab",
+      "sidePanel",
+      "scripting",
+      "offscreen"
+    ],
+    "chromeAIAPIs": [
+      "LanguageModel",
+      "Summarizer", 
+      "Writer",
+      "Rewriter"
+    ]
+  },
+  "validationChecks": {
+    "manifestValidation": true,
+    "componentLoading": true,
+    "permissionGranting": true,
+    "serviceWorkerActive": true,
+    "contentScriptInjection": true,
+    "popupRendering": true,
+    "sidepanelAvailability": true,
+    "optionsPageAccess": true
+  },
+  "mcpCommands": {
+    "navigationCommands": [
+      "navigate_page",
+      "reload_page", 
+      "go_back",
+      "go_forward"
+    ],
+    "evaluationCommands": [
+      "evaluate_script",
+      "evaluate_in_extension_context",
+      "evaluate_in_content_script",
+      "evaluate_in_service_worker"
+    ],
+    "interactionCommands": [
+      "click",
+      "type_text",
+      "press_key",
+      "hover",
+      "scroll"
+    ],
+    "monitoringCommands": [
+      "take_screenshot",
+      "list_console_messages",
+      "performance_start_trace",
+      "performance_stop_trace",
+      "memory_snapshot"
+    ]
+  }
+}

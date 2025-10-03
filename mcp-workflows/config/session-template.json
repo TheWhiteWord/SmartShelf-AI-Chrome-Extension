@@ -1,0 +1,42 @@
+{
+  "sessionName": "SmartShelf Extension Test Session",
+  "sessionType": "chrome_extension_validation",
+  "extensionPath": "/media/theww/AI/Code/AI/Google_Chrome_Built_In/extension",
+  "chromeExecutable": null,
+  "chromeFlags": [
+    "--enable-experimental-web-platform-features",
+    "--enable-features=Translate,LanguageModel,Summarization,AIWriterAPI,AIRewriterAPI",
+    "--disable-background-timer-throttling",
+    "--disable-backgrounding-occluded-windows",
+    "--disable-renderer-backgrounding"
+  ],
+  "timeout": 300000,
+  "screenshotDirectory": "./mcp-workflows/screenshots",
+  "logDirectory": "./mcp-workflows/logs",
+  "workflows": [
+    "extension_loading",
+    "ai_api_validation", 
+    "content_capture",
+    "ui_testing",
+    "performance_profiling"
+  ],
+  "performanceThresholds": {
+    "extensionLoadTime": 2000,
+    "aiProcessingTime": 5000,
+    "searchResponseTime": 500,
+    "memoryUsageLimit": 52428800
+  },
+  "constitutionalRequirements": {
+    "aiFirst": true,
+    "privacyLocal": true,
+    "extensionNative": true,
+    "testChromeAPIs": true,
+    "hackathonFocused": true,
+    "debugNative": true
+  },
+  "testUrls": [
+    "https://developer.chrome.com/docs/ai/get-started",
+    "https://github.com/readme-example",
+    "https://news.ycombinator.com/item?id=1"
+  ]
+}

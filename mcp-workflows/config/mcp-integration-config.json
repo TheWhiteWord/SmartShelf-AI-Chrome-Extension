@@ -1,0 +1,67 @@
+{
+  "mcpServerConfiguration": {
+    "serverName": "chrome-devtools",
+    "command": "npx",
+    "args": [
+      "chrome-devtools-mcp@latest",
+      "--channel=dev",
+      "--isolated=false",
+      "--logFile=./mcp-workflows/logs/chrome-extension-debug.log"
+    ],
+    "connectionTimeout": 30000,
+    "retryAttempts": 3,
+    "capabilities": [
+      "navigation",
+      "evaluation", 
+      "interaction",
+      "monitoring",
+      "performance"
+    ]
+  },
+  "testCommands": {
+    "verifyConnection": "@chrome-devtools help",
+    "navigateToExtensions": "@chrome-devtools navigate_page('chrome://extensions/')",
+    "enableDeveloperMode": "@chrome-devtools click('#developer-mode')",
+    "loadExtension": "@chrome-devtools click('#load-unpacked')",
+    "takeScreenshot": "@chrome-devtools take_screenshot()",
+    "getConsoleMessages": "@chrome-devtools list_console_messages()",
+    "startPerformanceTrace": "@chrome-devtools performance_start_trace()",
+    "stopPerformanceTrace": "@chrome-devtools performance_stop_trace()"
+  },
+  "validationQueries": {
+    "checkExtensionLoaded": "Check if SmartShelf extension is loaded and active in Chrome Developer Mode",
+    "validateAIAPIs": "Verify that Chrome Built-in AI APIs (Summarizer, Writer, Rewriter, LanguageModel) are available and functional",
+    "testContentCapture": "Test content capture workflow by navigating to a webpage and triggering extension save functionality",
+    "measurePerformance": "Measure AI processing performance and search response times to validate constitutional requirements",
+    "validateUIComponents": "Test all extension UI components (popup, sidepanel, options) for proper rendering and functionality"
+  },
+  "troubleshooting": {
+    "connectionIssues": {
+      "symptoms": ["MCP commands not recognized", "Connection timeout", "@chrome-devtools not available"],
+      "solutions": [
+        "Restart VS Code completely",
+        "Run npm install chrome-devtools-mcp@latest",
+        "Check .vscode/settings.json MCP configuration",
+        "Verify Node.js version >= 22.12.0"
+      ]
+    },
+    "extensionLoading": {
+      "symptoms": ["Extension fails to load", "Manifest errors", "Permission denied"],
+      "solutions": [
+        "Verify all required files present in extension/ directory",
+        "Check manifest.json syntax with JSON validator", 
+        "Ensure Chrome Developer Mode is enabled",
+        "Clear Chrome cache and reload extension"
+      ]
+    },
+    "aiAPIIssues": {
+      "symptoms": ["AI APIs unavailable", "API initialization timeout", "Feature not supported"],
+      "solutions": [
+        "Use Chrome Dev/Canary channel",
+        "Enable AI flags at chrome://flags/",
+        "Check model download status at chrome://on-device-internals/",
+        "Verify origin trial tokens if required"
+      ]
+    }
+  }
+}
