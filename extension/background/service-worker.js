@@ -4,12 +4,19 @@
 console.log('SmartShelf Service Worker loaded')
 
 // Import AI Connection Discovery Service
-importScripts('../shared/services/ai-connection-discovery.js')
-importScripts('../shared/models/connection.js')
-importScripts('../shared/services/export-api-gateway.js')
-importScripts('../shared/services/ai-writer.js')
-importScripts('../shared/services/content-processing-pipeline.js')
-importScripts('../shared/services/ai-processing-queue.js')
+// Note: importScripts works in non-module service workers
+try {
+  importScripts('../shared/services/ai-connection-discovery.js')
+  importScripts('../shared/models/connection.js')
+  importScripts('../shared/services/export-api-gateway.js')
+  importScripts('../shared/services/ai-writer.js')
+  importScripts('../shared/services/content-processing-pipeline.js')
+  importScripts('../shared/services/ai-processing-queue.js')
+  console.log('SmartShelf service scripts loaded successfully')
+} catch (error) {
+  console.warn('Some service scripts failed to load:', error.message)
+  // Continue with basic functionality even if some imports fail
+}
 
 // Global AI session management
 let aiSession = null
