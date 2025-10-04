@@ -19,10 +19,18 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined') {
   }
 }
 
-// Prevent duplicate class definition in browser environment
-if (typeof window !== 'undefined' && window.PhysicalItem) {
+// Check if already defined but don't prevent redefinition in test environments
+if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+  // In test environment, always proceed with definition
+} else if (typeof window !== 'undefined' && window.PhysicalItem) {
   console.log('PhysicalItem already defined, skipping redefinition')
-} else {
+  // Export existing instance for module systems
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { PhysicalItem: window.PhysicalItem }
+  }
+}
+
+// Always define the class (may redefine in tests)
 
 class PhysicalItem extends ContentItem {
   // Static properties for loan statuses and conditions
@@ -703,4 +711,3 @@ if (typeof module !== 'undefined' && module.exports) {
   window.PhysicalItem = PhysicalItem
 }
 
-} // End of guard clause
