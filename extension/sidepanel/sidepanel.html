@@ -221,6 +221,13 @@
         </div>
     </div>
     
+    <!-- Load models first (order is important for inheritance) -->
+    <script src="../shared/models/content-item.js"></script>
+    <script src="../shared/models/physical-item.js"></script>
+    <script src="../shared/models/connection.js"></script>
+    <script src="../shared/models/collection.js"></script>
+    
+    <!-- Load sidepanel functionality -->
     <script src="sidepanel.js"></script>
 </body>
 </html>

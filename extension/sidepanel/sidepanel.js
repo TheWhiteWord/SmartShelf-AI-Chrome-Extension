@@ -667,7 +667,12 @@ async function handlePhysicalItemSubmit(event) {
       type: 'book' // Default type for physical items
     }
 
-    // Create PhysicalItem instance (will be available after models load)
+    // Create PhysicalItem instance (ensure models are loaded)
+    if (!window.PhysicalItem) {
+      showNotification('Error: PhysicalItem model not loaded', 'error')
+      return
+    }
+    
     const physicalItem = new window.PhysicalItem(physicalItemData)
 
     // Validate

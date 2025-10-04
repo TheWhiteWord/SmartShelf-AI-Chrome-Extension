@@ -4,8 +4,20 @@
  * Based on specs/001-smartshelf-ai-powered/data-model.md
  */
 
-// Import ContentItem for inheritance
-const { ContentItem } = require('./content-item.js')
+// Import ContentItem for inheritance - Browser/Node.js compatible
+let ContentItem
+if (typeof require !== 'undefined' && typeof module !== 'undefined') {
+  // Node.js environment
+  ({ ContentItem } = require('./content-item.js'))
+} else {
+  // Browser environment - ContentItem should be globally available
+  ContentItem = window.ContentItem || globalThis.ContentItem
+  
+  // If not available, try to load it
+  if (!ContentItem) {
+    console.error('ContentItem not found. Make sure content-item.js is loaded before physical-item.js')
+  }
+}
 
 class PhysicalItem extends ContentItem {
   // Static properties for loan statuses and conditions
