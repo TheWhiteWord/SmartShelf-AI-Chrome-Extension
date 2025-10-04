@@ -322,6 +322,7 @@ npm test -- --testPathPattern="performance" --verbose
 - **T033 Content Capture**: AI-First architecture validation and workflow testing ✅
 - **T034 Search Performance**: Constitutional <500ms requirement validation ✅
 - **T035 UI Component Testing**: Popup, sidepanel, and options page functionality and visual validation ✅
+- **T036 Performance Profiling**: Constitutional <5s AI processing and system performance validation ✅
 
 ### 🏗️ Clean Architecture
 
@@ -334,12 +335,14 @@ mcp-workflows/
 ├── run-t033-content-capture.js        # Content capture validation
 ├── run-t034-search-performance.js     # Search performance MCP workflow
 ├── run-t035-ui-component-tests.js     # UI component functionality and visual validation
+├── run-t036-performance-profiling.js  # Constitutional performance requirements validation
 ├── archive/                           # Historical versions preserved
 │   ├── T032-COMPLETION-REPORT.md      # T032 detailed documentation
 │   ├── T032-MANUAL-TESTING-GUIDE.md   # T032 manual testing steps
 │   └── run-t033-original-full-version.js  # Original Chrome DevTools integration
 └── logs/                              # Test execution results
     ├── T035-ui-component-tests.json   # T035 detailed test results
+    ├── T036-performance-profiling.json # T036 detailed performance metrics
     └── T035-COMPLETION-REPORT.md      # T035 completion documentation
 
 extension/
@@ -381,7 +384,8 @@ tests/performance/
 
 ### 🔄 Next Implementation
 
-- **T036 Performance Profiling**: Comprehensive system performance analysis and optimization
+- **T037-T041 Analysis & Optimization**: Performance analysis and optimization based on profiling results
+- **T042-T045 Demo Preparation**: Hackathon demonstration materials and final packaging
 
 ### 🎯 Quick Validation
 
