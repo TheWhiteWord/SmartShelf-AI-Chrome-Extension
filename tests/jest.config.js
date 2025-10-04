@@ -1,6 +1,6 @@
 // Jest configuration for SmartShelf Chrome Extension
 
-module.exports = {
+export default {
   // Test environment
   testEnvironment: 'jsdom',
 
