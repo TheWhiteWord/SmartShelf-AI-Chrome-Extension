@@ -10,19 +10,21 @@ try {
   const bundleStartTime = performance.now()
   importScripts('services-bundle.js')
   const bundleLoadTime = performance.now() - bundleStartTime
-  self.performanceMonitor.recordServiceLoad('Services Bundle', bundleLoadTime)
-  console.log(`✅ Services bundle loaded in ${bundleLoadTime.toFixed(2)}ms (vs ~300-600ms for individual scripts)`)
-} catch (error) {
-  console.warn('⚠️ Services bundle failed to load, falling back to individual imports:', error.message)
-  // Fallback to individual imports if bundle fails
-  try {
-    importScripts('../shared/models/connection.js')
-    importScripts('../shared/services/ai-connection-discovery.js')
-    importScripts('../shared/services/export-api-gateway.js')
-    console.log('📦 Fallback imports loaded')
-  } catch (fallbackError) {
-    console.error('❌ Critical: Both bundle and fallback imports failed:', fallbackError)
+  
+  // Verify the bundle loaded correctly
+  if (typeof self.performanceMonitor !== 'undefined') {
+    self.performanceMonitor.recordServiceLoad('Services Bundle', bundleLoadTime)
+    console.log(`✅ Services bundle loaded in ${bundleLoadTime.toFixed(2)}ms (vs ~300-600ms for individual scripts)`)
+  } else {
+    console.warn('⚠️ Services bundle loaded but performance monitor not available')
   }
+} catch (error) {
+  console.warn('⚠️ Services bundle failed to load, continuing without bundle:', error.message)
+  console.log('📦 Service worker will operate with built-in fallbacks only')
+  
+  // Don't attempt to load individual model files in service worker context
+  // They contain window/browser-specific code that won't work here
+  // Services will be loaded on-demand when needed
 }
 
 // OPTIMIZATION 2: Lazy service management (loaded on-demand)
@@ -180,6 +182,11 @@ async function getAISession() {
 
   try {
     const params = await LanguageModel.params()
+    
+    // Ensure parameters are within valid ranges
+    const temperature = Math.min(Math.max(0.1, params.defaultTemperature || 0.7), params.maxTemperature || 1.0)
+    const topK = Math.min(Math.max(1, params.defaultTopK || 3), params.maxTopK || 40)
+    
     aiSession = await LanguageModel.create({
       initialPrompts: [{
         role: 'system', 
@@ -190,14 +197,15 @@ async function getAISession() {
         - key_points: Array of 2-4 key insights
         Always respond with valid JSON only.`
       }],
-      temperature: Math.min(params.defaultTemperature * 1.2, params.maxTemperature),
-      topK: params.defaultTopK
+      temperature,
+      topK
     })
     console.log('🤖 AI session created on-demand')
     return aiSession
   } catch (error) {
     console.error('Failed to create AI session:', error)
-    throw error
+    console.warn('AI processing will be limited due to session creation failure')
+    return null // Return null instead of throwing to prevent service worker crash
   }
 }
 
@@ -211,7 +219,7 @@ async function getSummarizerSession() {
 
   try {
     summarizerSession = await Summarizer.create({
-      type: 'tl;dr',
+      type: 'key-points',  // Use valid SummarizerType enum value
       format: 'plain-text',
       length: 'medium'
     })
@@ -219,7 +227,8 @@ async function getSummarizerSession() {
     return summarizerSession
   } catch (error) {
     console.error('Failed to create Summarizer session:', error)
-    throw error
+    console.warn('Summarization will be limited due to session creation failure')
+    return null // Return null instead of throwing to prevent service worker crash
   }
 }
 
@@ -228,26 +237,34 @@ async function initializeConnectionDiscovery() {
   const startTime = performance.now()
   
   try {
-    // Load service on-demand using lazy loader
-    const ServiceClass = await self.lazyServiceLoader.loadService(
-      'AIConnectionDiscoveryService', 
-      '../shared/services/ai-connection-discovery.js'
-    )
-    
-    if (ServiceClass) {
-      connectionDiscoveryService = new ServiceClass()
-      // Don't fully initialize yet - just mark as ready to initialize
-      serviceState.connectionDiscoveryReady = true
+    // Check if we're in service worker context
+    if (typeof self !== 'undefined' && self.lazyServiceLoader) {
+      // Load service on-demand using lazy loader
+      const ServiceClass = await self.lazyServiceLoader.loadService(
+        'AIConnectionDiscoveryService', 
+        '../shared/services/ai-connection-discovery.js'
+      )
       
-      const loadTime = performance.now() - startTime
-      self.performanceMonitor.recordServiceLoad('Connection Discovery (Lazy)', loadTime)
-      console.log(`🔗 Connection Discovery service loaded (${loadTime.toFixed(2)}ms)`)
+      if (ServiceClass) {
+        connectionDiscoveryService = new ServiceClass()
+        // Don't fully initialize yet - just mark as ready to initialize
+        serviceState.connectionDiscoveryReady = true
+        
+        const loadTime = performance.now() - startTime
+        self.performanceMonitor.recordServiceLoad('Connection Discovery (Lazy)', loadTime)
+        console.log(`🔗 Connection Discovery service loaded (${loadTime.toFixed(2)}ms)`)
+      } else {
+        console.log('ℹ️ Connection Discovery service not available in service worker context')
+        serviceState.connectionDiscoveryReady = false
+      }
     } else {
-      console.warn('⚠️ Connection Discovery service class not found')
+      console.log('ℹ️ Lazy service loader not available, skipping Connection Discovery')
+      serviceState.connectionDiscoveryReady = false
     }
   } catch (error) {
-    console.error('❌ Failed to load Connection Discovery service:', error)
+    console.warn('⚠️ Connection Discovery service not available:', error.message)
     connectionDiscoveryService = null
+    serviceState.connectionDiscoveryReady = false
   }
 }
 
@@ -285,23 +302,32 @@ async function initializeAIWriterService() {
   const startTime = performance.now()
   
   try {
-    // Load service on-demand
-    const ServiceClass = await self.lazyServiceLoader.loadService(
-      'AIWriterService',
-      '../shared/services/ai-writer.js'
-    )
-    
-    if (ServiceClass) {
-      aiWriterService = new ServiceClass()
-      serviceState.aiWriterReady = true
+    if (typeof self !== 'undefined' && self.lazyServiceLoader) {
+      // Load service on-demand
+      const ServiceClass = await self.lazyServiceLoader.loadService(
+        'AIWriterService',
+        '../shared/services/ai-writer.js'
+      )
       
-      const loadTime = performance.now() - startTime
-      self.performanceMonitor.recordServiceLoad('AI Writer (Lazy)', loadTime)
-      console.log(`✍️ AI Writer service loaded (${loadTime.toFixed(2)}ms)`)
+      if (ServiceClass) {
+        aiWriterService = new ServiceClass()
+        serviceState.aiWriterReady = true
+        
+        const loadTime = performance.now() - startTime
+        self.performanceMonitor.recordServiceLoad('AI Writer (Lazy)', loadTime)
+        console.log(`✍️ AI Writer service loaded (${loadTime.toFixed(2)}ms)`)
+      } else {
+        console.log('ℹ️ AI Writer service not available in service worker context')
+        serviceState.aiWriterReady = false
+      }
+    } else {
+      console.log('ℹ️ Lazy service loader not available, skipping AI Writer')
+      serviceState.aiWriterReady = false
     }
   } catch (error) {
-    console.error('❌ Failed to load AI Writer service:', error)
+    console.warn('⚠️ AI Writer service not available:', error.message)
     aiWriterService = null
+    serviceState.aiWriterReady = false
   }
 }
 
@@ -337,22 +363,31 @@ async function initializeExportGateway() {
   const startTime = performance.now()
   
   try {
-    const ServiceClass = await self.lazyServiceLoader.loadService(
-      'ExportOnlyAPIGateway',
-      '../shared/services/export-api-gateway.js'
-    )
-    
-    if (ServiceClass) {
-      exportAPIGateway = new ServiceClass()
-      serviceState.exportGatewayReady = true
+    if (typeof self !== 'undefined' && self.lazyServiceLoader) {
+      const ServiceClass = await self.lazyServiceLoader.loadService(
+        'ExportOnlyAPIGateway',
+        '../shared/services/export-api-gateway.js'
+      )
       
-      const loadTime = performance.now() - startTime
-      self.performanceMonitor.recordServiceLoad('Export Gateway (Lazy)', loadTime)
-      console.log(`🌐 Export Gateway loaded (${loadTime.toFixed(2)}ms)`)
+      if (ServiceClass) {
+        exportAPIGateway = new ServiceClass()
+        serviceState.exportGatewayReady = true
+        
+        const loadTime = performance.now() - startTime
+        self.performanceMonitor.recordServiceLoad('Export Gateway (Lazy)', loadTime)
+        console.log(`🌐 Export Gateway loaded (${loadTime.toFixed(2)}ms)`)
+      } else {
+        console.log('ℹ️ Export Gateway service not available in service worker context')
+        serviceState.exportGatewayReady = false
+      }
+    } else {
+      console.log('ℹ️ Lazy service loader not available, skipping Export Gateway')
+      serviceState.exportGatewayReady = false
     }
   } catch (error) {
-    console.error('❌ Failed to load Export Gateway:', error)
+    console.warn('⚠️ Export Gateway service not available:', error.message)
     exportAPIGateway = null
+    serviceState.exportGatewayReady = false
   }
 }
 
@@ -386,34 +421,43 @@ async function initializeContentProcessingPipeline() {
   const startTime = performance.now()
   
   try {
-    const ServiceClass = await self.lazyServiceLoader.loadService(
-      'ContentProcessingPipeline',
-      '../shared/services/content-processing-pipeline.js'
-    )
-    
-    if (ServiceClass) {
-      // Create lightweight storage service
-      const storageService = {
-        get: (key) => chrome.storage.local.get(key),
-        set: (data) => chrome.storage.local.set(data)
-      }
-      
-      contentProcessingPipeline = new ServiceClass(
-        storageService,
-        null, // contentRepository - lazy loaded
-        null, // searchService - lazy loaded
-        null  // aiServices - lazy loaded
+    if (typeof self !== 'undefined' && self.lazyServiceLoader) {
+      const ServiceClass = await self.lazyServiceLoader.loadService(
+        'ContentProcessingPipeline',
+        '../shared/services/content-processing-pipeline.js'
       )
       
-      serviceState.processingPipelineReady = true
-      
-      const loadTime = performance.now() - startTime
-      self.performanceMonitor.recordServiceLoad('Processing Pipeline (Lazy)', loadTime)
-      console.log(`⚙️ Processing Pipeline loaded (${loadTime.toFixed(2)}ms)`)
+      if (ServiceClass) {
+        // Create lightweight storage service
+        const storageService = {
+          get: (key) => chrome.storage.local.get(key),
+          set: (data) => chrome.storage.local.set(data)
+        }
+        
+        contentProcessingPipeline = new ServiceClass(
+          storageService,
+          null, // contentRepository - lazy loaded
+          null, // searchService - lazy loaded
+          null  // aiServices - lazy loaded
+        )
+        
+        serviceState.processingPipelineReady = true
+        
+        const loadTime = performance.now() - startTime
+        self.performanceMonitor.recordServiceLoad('Processing Pipeline (Lazy)', loadTime)
+        console.log(`⚙️ Processing Pipeline loaded (${loadTime.toFixed(2)}ms)`)
+      } else {
+        console.log('ℹ️ Content Processing Pipeline not available in service worker context')
+        serviceState.processingPipelineReady = false
+      }
+    } else {
+      console.log('ℹ️ Lazy service loader not available, skipping Content Processing Pipeline')
+      serviceState.processingPipelineReady = false
     }
   } catch (error) {
-    console.error('❌ Failed to load Content Processing Pipeline:', error)
+    console.warn('⚠️ Content Processing Pipeline not available:', error.message)
     contentProcessingPipeline = null
+    serviceState.processingPipelineReady = false
   }
 }
 
@@ -435,32 +479,41 @@ async function initializeAIProcessingQueue() {
   const startTime = performance.now()
   
   try {
-    const ServiceClass = await self.lazyServiceLoader.loadService(
-      'AIProcessingQueue',
-      '../shared/services/ai-processing-queue.js'
-    )
-    
-    if (ServiceClass) {
-      // Create lightweight services for the queue
-      const storageService = {
-        get: (key) => chrome.storage.local.get(key),
-        set: (key, data) => chrome.storage.local.set({ [key]: data })
+    if (typeof self !== 'undefined' && self.lazyServiceLoader) {
+      const ServiceClass = await self.lazyServiceLoader.loadService(
+        'AIProcessingQueue',
+        '../shared/services/ai-processing-queue.js'
+      )
+      
+      if (ServiceClass) {
+        // Create lightweight services for the queue
+        const storageService = {
+          get: (key) => chrome.storage.local.get(key),
+          set: (key, data) => chrome.storage.local.set({ [key]: data })
+        }
+        
+        const aiServices = {
+          processContent: processContentWithAI
+        }
+        
+        aiProcessingQueue = new ServiceClass(storageService, aiServices)
+        serviceState.aiQueueReady = true
+        
+        const loadTime = performance.now() - startTime
+        self.performanceMonitor.recordServiceLoad('AI Queue (Lazy)', loadTime)
+        console.log(`📋 AI Processing Queue loaded (${loadTime.toFixed(2)}ms)`)
+      } else {
+        console.log('ℹ️ AI Processing Queue not available in service worker context')
+        serviceState.aiQueueReady = false
       }
-      
-      const aiServices = {
-        processContent: processContentWithAI
-      }
-      
-      aiProcessingQueue = new ServiceClass(storageService, aiServices)
-      serviceState.aiQueueReady = true
-      
-      const loadTime = performance.now() - startTime
-      self.performanceMonitor.recordServiceLoad('AI Queue (Lazy)', loadTime)
-      console.log(`📋 AI Processing Queue loaded (${loadTime.toFixed(2)}ms)`)
+    } else {
+      console.log('ℹ️ Lazy service loader not available, skipping AI Processing Queue')
+      serviceState.aiQueueReady = false
     }
   } catch (error) {
-    console.error('❌ Failed to load AI Processing Queue:', error)
+    console.warn('⚠️ AI Processing Queue not available:', error.message)
     aiProcessingQueue = null
+    serviceState.aiQueueReady = false
   }
 }
 
@@ -893,10 +946,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Service Worker received message:', request)
 
   switch (request.action) {
+    case 'ping':
+      sendResponse({ success: true, message: 'Service worker ready' })
+      break
+
     case 'save_content':
       processAndSaveContent(request.data)
         .then(() => sendResponse({ success: true }))
-        .catch(error => sendResponse({ success: false, error: error.message }))
+        .catch(error => {
+          console.error('Save content error:', error)
+          sendResponse({ success: false, error: error.message })
+        })
       return true // Keep message channel open for async response
 
     case 'get_contentItems':

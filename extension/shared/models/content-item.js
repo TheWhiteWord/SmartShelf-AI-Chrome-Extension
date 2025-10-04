@@ -5,9 +5,17 @@
  * Supports validation, methods, and Chrome Extension integration.
  */
 
-// Prevent duplicate class definition in browser environment
-if (typeof window !== 'undefined' && window.ContentItem) {
+// Prevent duplicate class definition in any context (browser, service worker, or Node.js)
+if ((typeof window !== 'undefined' && window.ContentItem) || 
+    (typeof self !== 'undefined' && self.ContentItem) ||
+    (typeof global !== 'undefined' && global.ContentItem)) {
   console.log('ContentItem already defined, skipping redefinition')
+  // Exit the script if class already exists
+  if (typeof window !== 'undefined') {
+    return
+  } else if (typeof self !== 'undefined') {
+    return
+  }
 } else {
 
 class ContentItem {

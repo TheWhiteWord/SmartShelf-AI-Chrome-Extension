@@ -1,21 +1,94 @@
 // SmartShelf Side Panel Script
 // Handles main collection interface, search, and content management
 
-console.log('SmartShelf Side Panel loaded')
+// Utility functions for service worker communication
+async function ensureServiceWorkerReady() {
+  const maxAttempts = 5
+  const delay = 200
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // Test if service worker is responding
+      const testResponse = await chrome.runtime.sendMessage({ action: 'ping' })
+      if (testResponse || attempt === maxAttempts) {
+        return // Service worker is ready or we've exhausted attempts
+      }
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        console.warn('Service worker may not be fully ready after', maxAttempts, 'attempts')
+        return
+      }
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, delay * attempt))
+    }
+  }
+}
 
-// Load models (they will be available as window.PhysicalItem, window.Collection, etc.)
-const modelScripts = [
-  '../shared/models/physical-item.js',
-  '../shared/models/collection.js',
-  '../shared/models/connection.js'
-]
+// Send message with retry logic
+async function sendMessageWithRetry(message, maxAttempts = 3) {
+  let lastError = null
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await chrome.runtime.sendMessage(message)
+      return response
+    } catch (error) {
+      lastError = error
+      console.warn(`Message attempt ${attempt} failed:`, error.message)
+      
+      if (attempt < maxAttempts) {
+        // Wait before retry, with exponential backoff
+        const delay = Math.min(200 * Math.pow(2, attempt - 1), 1000)
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+  }
+  
+  throw lastError
+}
 
-// Load models dynamically
-modelScripts.forEach(script => {
-  const scriptElement = document.createElement('script')
-  scriptElement.src = script
-  document.head.appendChild(scriptElement)
-})
+// Generate simple ID
+function generateId() {
+  return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
+}
+
+// Show error message to user
+function showErrorMessage(message) {
+  // Create or update error message element
+  let errorElement = document.getElementById('error-message')
+  if (!errorElement) {
+    errorElement = document.createElement('div')
+    errorElement.id = 'error-message'
+    errorElement.style.cssText = `
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      background: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #f5c6cb;
+      z-index: 1000;
+      font-size: 14px;
+    `
+    document.body.appendChild(errorElement)
+  }
+  
+  errorElement.textContent = message
+  
+  // Auto-hide after 10 seconds
+  setTimeout(() => {
+    if (errorElement) {
+      errorElement.remove()
+    }
+  }, 10000)
+}
+
+console.log('SmartShelf Side Panel initialized')
+
+// Models will be handled via service worker communication
+// No need to load model classes in sidepanel context
 
 // DOM elements
 let searchInput, searchBtn, addContentBtn, addPhysicalBtn
@@ -114,6 +187,9 @@ function setupEventListeners() {
 
   // Modal event listeners
   setupModalEventListeners()
+  
+  // Set up global event delegation for data-action elements
+  setupGlobalEventDelegation()
 
   // Footer buttons
   settingsBtn?.addEventListener('click', openSettings)
@@ -125,7 +201,10 @@ async function loadContentItems() {
   try {
     setLoading(true)
 
-    const response = await chrome.runtime.sendMessage({
+    // Ensure service worker is ready
+    await ensureServiceWorkerReady()
+
+    const response = await sendMessageWithRetry({
       action: 'get_contentItems'
     })
 
@@ -140,6 +219,7 @@ async function loadContentItems() {
   } catch (error) {
     console.error('Failed to load content items:', error)
     contentItems = []
+    showErrorMessage('Failed to connect to SmartShelf service. Please try refreshing the page.')
   } finally {
     setLoading(false)
   }
@@ -155,7 +235,7 @@ async function handleSearch() {
     if (query === '') {
       searchResults = contentItems
     } else {
-      const response = await chrome.runtime.sendMessage({
+      const response = await sendMessageWithRetry({
         action: 'search_content',
         query
       })
@@ -229,7 +309,7 @@ function renderAllItems() {
         <div class="empty-icon">📚</div>
         <h3>No items found</h3>
         <p>Start building your knowledge collection by saving content from any webpage.</p>
-        <button onclick="addCurrentPage()" class="empty-action-btn">Save Current Page</button>
+        <button data-action="add-current-page" class="empty-action-btn">Save Current Page</button>
       </div>
     `
     return
@@ -271,9 +351,9 @@ function renderContentItem(item) {
       </div>
       
       <div class="item-actions">
-        <button onclick="viewItem('${item.id}')" class="action-btn">View</button>
-        <button onclick="editItem('${item.id}')" class="action-btn">Edit</button>
-        <button onclick="deleteItem('${item.id}')" class="action-btn danger">Delete</button>
+        <button data-action="view-item" data-item-id="${item.id}" class="action-btn">View</button>
+        <button data-action="edit-item" data-item-id="${item.id}" class="action-btn">Edit</button>
+        <button data-action="delete-item" data-item-id="${item.id}" class="action-btn danger">Delete</button>
       </div>
     </div>
   `
@@ -293,7 +373,7 @@ function renderRecentItems() {
   }
 
   recentItems.innerHTML = recent.map(item => `
-    <div class="recent-item" onclick="viewItem('${item.id}')">
+    <div class="recent-item" data-action="view-item" data-item-id="${item.id}">
       <span class="recent-icon">${getTypeIcon(item.type)}</span>
       <div class="recent-content">
         <div class="recent-title">${escapeHtml(item.title)}</div>
@@ -325,7 +405,7 @@ function renderCategories() {
 
   categoriesGrid.innerHTML = Array.from(categoryMap.entries())
     .map(([category, items]) => `
-      <div class="category-card" onclick="filterByCategory('${category}')">
+      <div class="category-card" data-action="filter-category" data-category="${category}">
         <div class="category-header">
           <h3>${escapeHtml(category)}</h3>
           <span class="category-count">${items.length}</span>
@@ -420,7 +500,7 @@ function renderCollections() {
         <div class="empty-icon">📁</div>
         <h3>No collections yet</h3>
         <p>Create collections to organize your content into projects and topics.</p>
-        <button onclick="showCreateCollectionDialog()" class="empty-action-btn">Create Collection</button>
+        <button data-action="create-collection" class="empty-action-btn">Create Collection</button>
       </div>
     `
     return
@@ -429,7 +509,7 @@ function renderCollections() {
   collectionsGrid.innerHTML = collections.map(collection => {
     const itemCount = collection.itemIds ? collection.itemIds.length : 0
     return `
-      <div class="collection-card" data-collection-id="${collection.id}" onclick="viewCollection('${collection.id}')">
+      <div class="collection-card" data-collection-id="${collection.id}" data-action="view-collection">
         <div class="collection-header">
           <span class="collection-icon">${collection.icon || '📁'}</span>
           <h3 class="collection-name">${escapeHtml(collection.name)}</h3>
@@ -442,8 +522,8 @@ function renderCollections() {
           </div>
         </div>
         <div class="collection-actions">
-          <button onclick="editCollection('${collection.id}')" class="action-btn">Edit</button>
-          <button onclick="deleteCollection('${collection.id}')" class="action-btn danger">Delete</button>
+          <button data-action="edit-collection" data-collection-id="${collection.id}" class="action-btn">Edit</button>
+          <button data-action="delete-collection" data-collection-id="${collection.id}" class="action-btn danger">Delete</button>
         </div>
       </div>
     `
@@ -462,7 +542,7 @@ function renderPhysicalItems() {
         <div class="empty-icon">📚</div>
         <h3>No physical items yet</h3>
         <p>Add your books, documents, and other physical materials to your collection.</p>
-        <button onclick="showAddPhysicalDialog()" class="empty-action-btn">Add Physical Item</button>
+        <button data-action="add-physical" class="empty-action-btn">Add Physical Item</button>
       </div>
     `
     return
@@ -472,7 +552,7 @@ function renderPhysicalItems() {
     const hasDigitalVersion = item.digitalVersion && item.digitalVersion.url
 
     return `
-      <div class="physical-item-card" data-item-id="${item.id}" onclick="viewItem('${item.id}')">
+      <div class="physical-item-card" data-item-id="${item.id}" data-action="view-item">
         <div class="item-header">
           <span class="item-type">📚</span>
           <span class="item-status">${item.condition || 'good'}</span>
@@ -497,9 +577,9 @@ function renderPhysicalItems() {
         </div>
         
         <div class="item-actions">
-          <button onclick="viewItem('${item.id}')" class="action-btn">View</button>
-          <button onclick="editPhysicalItem('${item.id}')" class="action-btn">Edit</button>
-          ${hasDigitalVersion ? `<button onclick="openDigitalVersion('${item.id}')" class="action-btn">Open Digital</button>` : ''}
+          <button data-action="view-item" data-item-id="${item.id}" class="action-btn">View</button>
+          <button data-action="edit-physical" data-item-id="${item.id}" class="action-btn">Edit</button>
+          ${hasDigitalVersion ? `<button data-action="open-digital" data-item-id="${item.id}" class="action-btn">Open Digital</button>` : ''}
         </div>
       </div>
     `
@@ -535,7 +615,7 @@ async function addCurrentPage() {
     showNotification('Saving current page...', 'loading')
 
     // Trigger save via service worker
-    await chrome.runtime.sendMessage({
+    await sendMessageWithRetry({
       action: 'save_current_page'
     })
 
@@ -667,24 +747,23 @@ async function handlePhysicalItemSubmit(event) {
       type: 'book' // Default type for physical items
     }
 
-    // Create PhysicalItem instance (ensure models are loaded)
-    if (!window.PhysicalItem) {
-      showNotification('Error: PhysicalItem model not loaded', 'error')
+    // Basic validation without model classes
+    if (!physicalItemData.title?.trim()) {
+      showNotification('Title is required', 'error')
       return
     }
     
-    const physicalItem = new window.PhysicalItem(physicalItemData)
-
-    // Validate
-    const validation = physicalItem.validate()
-    if (!validation.isValid) {
-      showNotification(`Validation error: ${validation.errors.join(', ')}`, 'error')
+    if (!physicalItemData.physicalLocation?.trim()) {
+      showNotification('Physical location is required', 'error')
       return
     }
 
-    // Search for digital version
-    showNotification('Searching for digital version...', 'info')
-    await physicalItem.searchDigitalVersion()
+    // Add required fields
+    physicalItemData.type = 'physical'
+    physicalItemData.timestamp = Date.now()
+    physicalItemData.id = generateId()
+
+    // Note: Digital version search will be handled by service worker
 
     // Save to storage
     const { contentItems = [] } = await chrome.storage.local.get('contentItems')
@@ -729,7 +808,11 @@ async function handleCollectionSubmit(event) {
     }
 
     // Create Collection instance
-    const collection = new window.Collection(collectionData)
+    // Add required fields for collection
+    collectionData.id = generateId()
+    collectionData.createdAt = Date.now()
+    collectionData.itemCount = 0
+    const collection = collectionData
 
     // Validate
     const validation = collection.validate()
@@ -791,12 +874,87 @@ function setupModalEventListeners() {
   })
 }
 
+// Global event delegation for data-action elements
+function setupGlobalEventDelegation() {
+  document.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-action]')
+    if (!target) return
+    
+    const action = target.getAttribute('data-action')
+    const itemId = target.getAttribute('data-item-id')
+    const collectionId = target.getAttribute('data-collection-id')
+    const category = target.getAttribute('data-category')
+    
+    // Prevent default action
+    event.preventDefault()
+    
+    // Handle different actions
+    switch (action) {
+      case 'add-current-page':
+        addCurrentPage()
+        break
+        
+      case 'view-item':
+        if (itemId) viewItem(itemId)
+        break
+        
+      case 'edit-item':
+        if (itemId) editItem(itemId)
+        break
+        
+      case 'delete-item':
+        if (itemId) deleteItem(itemId)
+        break
+        
+      case 'filter-category':
+        if (category) filterByCategory(category)
+        break
+        
+      case 'create-collection':
+        showCreateCollectionDialog()
+        break
+        
+      case 'view-collection':
+        if (collectionId) viewCollection(collectionId)
+        break
+        
+      case 'edit-collection':
+        if (collectionId) editCollection(collectionId)
+        break
+        
+      case 'delete-collection':
+        if (collectionId) deleteCollection(collectionId)
+        break
+        
+      case 'add-physical':
+        showAddPhysicalDialog()
+        break
+        
+      case 'edit-physical':
+        if (itemId) editPhysicalItem(itemId)
+        break
+        
+      case 'open-digital':
+        if (itemId) openDigitalVersion(itemId)
+        break
+        
+      case 'close-modal':
+        const modal = event.target.closest('.modal')
+        if (modal) modal.classList.add('hidden')
+        break
+        
+      default:
+        console.warn('Unknown action:', action)
+    }
+  })
+}
+
 // Data Loading Functions
 
 async function loadCollections() {
   try {
     const { collections: storedCollections = [] } = await chrome.storage.local.get('collections')
-    collections = storedCollections.map(data => window.Collection?.fromJSON(data) || data)
+    collections = storedCollections || []
   } catch (error) {
     console.error('Failed to load collections:', error)
     collections = []

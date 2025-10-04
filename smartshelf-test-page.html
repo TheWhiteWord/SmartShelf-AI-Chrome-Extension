@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShelf Extension Test Page</title>
+    <meta name="description" content="A test page for validating SmartShelf extension functionality">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            margin: 20px 0;
+        }
+        
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .code {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        
+        .test-actions {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-actions h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .test-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 SmartShelf Extension Test Page</h1>
+        <p>Use this page to test the SmartShelf Chrome extension functionality. This page contains various elements that the extension should be able to extract and process.</p>
+    </div>
+
+    <div class="content">
+        <h2>Article Content</h2>
+        <p>This is a sample article about <span class="highlight">artificial intelligence</span> and its applications in modern web browsers. The SmartShelf extension should be able to extract this content and analyze it using Chrome's Built-in AI APIs.</p>
+
+        <h3>Key Features Being Tested</h3>
+        <ul>
+            <li><strong>Content Extraction</strong>: The extension should extract the title, content, and metadata from this page</li>
+            <li><strong>AI Analysis</strong>: Chrome's Built-in AI should generate tags and summaries</li>
+            <li><strong>Service Worker Communication</strong>: Popup should communicate with the service worker</li>
+            <li><strong>Storage</strong>: Content should be saved to Chrome's local storage</li>
+        </ul>
+
+        <h3>Technical Details</h3>
+        <p>The extension uses Chrome's Manifest V3 architecture with:</p>
+        <div class="code">
+            - Service Worker for background processing
+            - Content Script for page content extraction
+            - Popup interface for user interactions
+            - Side Panel for content management
+            - Chrome Built-in AI APIs (LanguageModel, Summarizer, Writer, Rewriter)
+        </div>
+
+        <h3>Sample Content for AI Analysis</h3>
+        <p>Machine learning and artificial intelligence are transforming how we interact with web browsers. Chrome's Built-in AI capabilities enable extensions like SmartShelf to provide intelligent content organization and analysis directly in the browser, without requiring external API calls or internet connectivity.</p>
+
+        <p>This represents a significant advancement in <span class="highlight">privacy-preserving AI</span>, as all processing happens locally within the browser environment. Users can organize their knowledge without data leaving their device.</p>
+    </div>
+
+    <div class="test-actions">
+        <h3>🧪 Testing Instructions</h3>
+        
+        <div class="test-step">
+            <strong>Step 1:</strong> Click the SmartShelf extension icon in the Chrome toolbar to open the popup.
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 2:</strong> Click "Save to SmartShelf" to save this page. The extension should:
+            <ul>
+                <li>Extract content from this page</li>
+                <li>Show a "Saving page..." status</li>
+                <li>Process content with AI analysis</li>
+                <li>Show "✅ Saved! AI analysis starting..." message</li>
+                <li>Display AI processing status</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 3:</strong> Click "View Collection" to open the side panel and verify the page was saved.
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 4:</strong> Try the keyboard shortcut <kbd>Ctrl+Shift+S</kbd> (or <kbd>Cmd+Shift+S</kbd> on Mac) to save content directly.
+        </div>
+
+        <div class="test-step">
+            <strong>Expected Results:</strong>
+            <ul>
+                <li>✅ No "Could not establish connection" errors</li>
+                <li>✅ Content successfully extracted and saved</li>
+                <li>✅ AI analysis generates relevant tags</li>
+                <li>✅ Success indicator appears on the page</li>
+                <li>✅ Content appears in the side panel collection</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Additional Test Content</h2>
+        <p>Here's some additional content with various formatting to test the robustness of the content extraction:</p>
+        
+        <blockquote style="border-left: 4px solid #ddd; padding-left: 16px; margin: 16px 0; font-style: italic;">
+            "The future of web browsing lies in intelligent, privacy-preserving AI that helps users organize and understand their digital knowledge without compromising their data." - Test Quote
+        </blockquote>
+        
+        <h4>Structured Data Example</h4>
+        <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+            <thead>
+                <tr style="background: #f4f4f4;">
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Feature</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Content Extraction</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Working</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">AI Analysis</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Working</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Service Worker Communication</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Working</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer style="margin-top: 40px; padding: 20px; background: #f9f9f9; border-radius: 8px; text-align: center;">
+        <p><strong>SmartShelf Extension Test Page</strong></p>
+        <p>If you can save this page successfully without connection errors, all the major issues have been resolved! 🎉</p>
+        <p><em>Last updated: October 4, 2025</em></p>
+    </footer>
+
+    <script>
+        // Add some interactive content for testing
+        console.log('SmartShelf test page loaded successfully');
+        
+        // Add a simple interaction for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page DOM ready - SmartShelf extension should be able to extract this content');
+        });
+    </script>
+</body>
+</html>

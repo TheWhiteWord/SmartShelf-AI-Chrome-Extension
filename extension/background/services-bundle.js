@@ -105,22 +105,34 @@ class LazyServiceLoader {
   }
 
   /**
-   * Import service with fallback error handling
+   * Import service with fallback error handling (Service Worker safe)
    */
   async _importService(serviceName, importPath) {
     try {
-      // Use dynamic import for non-critical services
+      // In service worker context, only load services designed for service workers
       if (typeof importScripts !== 'undefined') {
-        // In service worker context
-        importScripts(importPath)
-        return this._getServiceClass(serviceName)
+        // Skip loading services that require browser/window context
+        const browserOnlyServices = ['AIConnectionDiscoveryService', 'ExportOnlyAPIGateway', 'AIWriterService'];
+        if (browserOnlyServices.includes(serviceName)) {
+          console.log(`Skipping ${serviceName} - requires browser context`);
+          return null;
+        }
+        
+        // Load service worker compatible services only
+        try {
+          importScripts(importPath)
+          return this._getServiceClass(serviceName)
+        } catch (importError) {
+          console.warn(`Service ${serviceName} not compatible with service worker context:`, importError.message);
+          return null;
+        }
       } else {
         // In module context (future-proofing)
         const module = await import(importPath)
         return module[serviceName] || module.default
       }
     } catch (error) {
-      console.warn(`Failed to load service ${serviceName}:`, error)
+      console.warn(`Failed to load service ${serviceName}:`, error.message)
       return null
     }
   }

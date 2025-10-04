@@ -101,7 +101,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Add Physical Item</h3>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" data-action="close-modal">&times;</button>
             </div>
             
             <form id="physical-item-form" class="modal-form">
@@ -159,7 +159,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Create Collection</h3>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" data-action="close-modal">&times;</button>
             </div>
             
             <form id="collection-form" class="modal-form">
@@ -203,7 +203,7 @@
         <div class="modal-content large">
             <div class="modal-header">
                 <h3 id="item-details-title">Item Details</h3>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" data-action="close-modal">&times;</button>
             </div>
             
             <div class="modal-body">
@@ -221,13 +221,7 @@
         </div>
     </div>
     
-    <!-- Load models first (order is important for inheritance) -->
-    <script src="../shared/models/content-item.js"></script>
-    <script src="../shared/models/physical-item.js"></script>
-    <script src="../shared/models/connection.js"></script>
-    <script src="../shared/models/collection.js"></script>
-    
-    <!-- Load sidepanel functionality -->
+    <!-- Load sidepanel functionality (models will be loaded via service worker) -->
     <script src="sidepanel.js"></script>
 </body>
 </html>

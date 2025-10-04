@@ -22,6 +22,7 @@ class FlatpakChromeTestExecutor {
 
   async startChromeWithExtension() {
     console.log('🚀 Starting Chrome Dev via Flatpak with extension loading...');
+    console.log('📁 Extension path:', this.extensionPath);
     
     return new Promise((resolve, reject) => {
       // Launch Chrome Dev with debugging and extension loading
@@ -31,7 +32,11 @@ class FlatpakChromeTestExecutor {
         '--disable-extensions-except=' + this.extensionPath,
         '--user-data-dir=/tmp/chrome-mcp-test',
         '--no-first-run',
-        '--disable-default-apps'
+        '--disable-default-apps',
+        '--enable-logging=stderr',
+        '--log-level=0',
+        '--enable-extension-activity-logging',
+        '--disable-web-security'
       ];
       
       let chromeCmd;
@@ -50,8 +55,23 @@ class FlatpakChromeTestExecutor {
       console.log(`Executing: ${chromeCmd} ${fullArgs.join(' ')}`);
       
       const chromeProcess = spawn(chromeCmd, fullArgs, {
-        stdio: 'pipe',
+        stdio: ['ignore', 'pipe', 'pipe'],
         detached: false
+      });
+      
+      // Capture and log Chrome output for debugging
+      chromeProcess.stdout.on('data', (data) => {
+        const output = data.toString();
+        if (output.includes('extension') || output.includes('Extension') || output.includes('ERROR')) {
+          console.log('Chrome stdout:', output.trim());
+        }
+      });
+      
+      chromeProcess.stderr.on('data', (data) => {
+        const output = data.toString();
+        if (output.includes('extension') || output.includes('Extension') || output.includes('ERROR')) {
+          console.log('Chrome stderr:', output.trim());
+        }
       });
       
       chromeProcess.on('error', (error) => {
@@ -59,12 +79,52 @@ class FlatpakChromeTestExecutor {
         reject(error);
       });
       
-      // Wait for Chrome to start
-      setTimeout(() => {
+      // Wait for Chrome to start and then check extension status
+      setTimeout(async () => {
         console.log('✅ Chrome Dev started with extension loaded');
+        
+        // Try to verify extension loaded via debugging API
+        try {
+          await this.verifyExtensionLoaded();
+        } catch (error) {
+          console.warn('⚠️ Could not verify extension via debugging API:', error.message);
+        }
+        
         resolve(chromeProcess);
-      }, 3000);
+      }, 5000);
     });
+  }
+
+  async verifyExtensionLoaded() {
+    try {
+      const response = await fetch('http://localhost:9222/json');
+      const targets = await response.json();
+      
+      console.log('🔍 Checking Chrome debugging targets...');
+      const extensions = targets.filter(target => 
+        target.type === 'background_page' || 
+        target.url.includes('chrome-extension://') ||
+        target.title.includes('SmartShelf')
+      );
+      
+      if (extensions.length > 0) {
+        console.log('✅ Extension found in debugging targets:');
+        extensions.forEach(ext => {
+          console.log(`   - ${ext.title || ext.url} (${ext.type})`);
+        });
+        return true;
+      } else {
+        console.log('❌ No extension found in debugging targets');
+        console.log('📋 Available targets:');
+        targets.forEach(target => {
+          console.log(`   - ${target.title || target.url} (${target.type})`);
+        });
+        return false;
+      }
+    } catch (error) {
+      console.log('⚠️ Could not connect to Chrome debugging API:', error.message);
+      return false;
+    }
   }
 
   async testExtensionLoading() {
@@ -109,8 +169,11 @@ class FlatpakChromeTestExecutor {
       console.log('   Debug console at: http://localhost:9222');
       console.log('   Keeping Chrome open for 30 seconds...');
       
-      setTimeout(() => {
-        console.log('\n🔚 Closing Chrome Dev...');
+      setTimeout(async () => {
+        console.log('\\n🔍 Final extension verification...');
+        await this.verifyExtensionLoaded();
+        
+        console.log('\\n🔚 Closing Chrome Dev...');
         if (chromeProcess && !chromeProcess.killed) {
           chromeProcess.kill();
         }

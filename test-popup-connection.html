@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartShelf Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>SmartShelf Connection Test</h1>
+    <p>This page tests the connection between popup and service worker.</p>
+    
+    <div id="results"></div>
+    
+    <button onclick="testServiceWorkerPing()">Test Service Worker Ping</button>
+    <button onclick="testContentExtraction()">Test Content Extraction</button>
+    <button onclick="testSaveContent()">Test Save Content</button>
+    <button onclick="testGetItems()">Test Get Items</button>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(test, success, message) {
+            const div = document.createElement('div');
+            div.className = `test ${success ? 'success' : 'error'}`;
+            div.innerHTML = `<strong>${test}:</strong> ${success ? '✅' : '❌'} ${message}`;
+            results.appendChild(div);
+        }
+        
+        async function testServiceWorkerPing() {
+            try {
+                const response = await chrome.runtime.sendMessage({ action: 'ping' });
+                if (response && response.success) {
+                    addResult('Service Worker Ping', true, 'Service worker is responding');
+                } else {
+                    addResult('Service Worker Ping', false, 'Service worker not responding properly');
+                }
+            } catch (error) {
+                addResult('Service Worker Ping', false, `Error: ${error.message}`);
+            }
+        }
+        
+        async function testContentExtraction() {
+            try {
+                // Try to extract content from current page
+                const response = await chrome.tabs.sendMessage(
+                    (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id,
+                    { action: 'extract_content' }
+                );
+                
+                if (response && response.success) {
+                    addResult('Content Extraction', true, `Extracted: ${response.data.title.substring(0, 50)}...`);
+                } else {
+                    addResult('Content Extraction', false, 'Content script not responding');
+                }
+            } catch (error) {
+                addResult('Content Extraction', false, `Error: ${error.message}`);
+            }
+        }
+        
+        async function testSaveContent() {
+            try {
+                const testContent = {
+                    title: 'Test Article',
+                    url: 'https://example.com/test',
+                    content: 'This is test content for SmartShelf.',
+                    timestamp: Date.now(),
+                    domain: 'example.com',
+                    type: 'article'
+                };
+                
+                const response = await chrome.runtime.sendMessage({
+                    action: 'save_content',
+                    data: testContent
+                });
+                
+                if (response && response.success) {
+                    addResult('Save Content', true, 'Content saved successfully');
+                } else {
+                    addResult('Save Content', false, `Save failed: ${response?.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                addResult('Save Content', false, `Error: ${error.message}`);
+            }
+        }
+        
+        async function testGetItems() {
+            try {
+                const response = await chrome.runtime.sendMessage({
+                    action: 'get_contentItems'
+                });
+                
+                if (response && response.success) {
+                    const count = response.data ? response.data.length : 0;
+                    addResult('Get Items', true, `Retrieved ${count} items`);
+                } else {
+                    addResult('Get Items', false, `Get failed: ${response?.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                addResult('Get Items', false, `Error: ${error.message}`);
+            }
+        }
+        
+        // Auto-run ping test
+        testServiceWorkerPing();
+    </script>
+</body>
+</html>

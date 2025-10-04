@@ -21,7 +21,13 @@ console.log('SmartShelf Content Script loaded');
     console.log('Content script received message:', request)
 
     switch (request.action) {
+      case 'ping':
+        console.log('Content script ping received')
+        sendResponse({ success: true, message: 'Content script ready' })
+        break
+        
       case 'extract_content': {
+        console.log('Content extraction requested')
         const pageData = extractPageContent()
         sendResponse({ success: true, data: pageData })
         break
@@ -341,23 +347,28 @@ console.log('SmartShelf Content Script loaded');
     // Create indicator element
     saveIndicator = document.createElement('div')
     saveIndicator.textContent = message
-    saveIndicator.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${type === 'error' ? '#f44336' : '#4caf50'};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 10000;
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(100px);
-    `
+    
+    // Set styles individually to avoid CSP violations
+    const styles = {
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      background: type === 'error' ? '#f44336' : '#4caf50',
+      color: 'white',
+      padding: '12px 20px',
+      borderRadius: '8px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: '14px',
+      fontWeight: '500',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+      zIndex: '10000',
+      transition: 'all 0.3s ease',
+      opacity: '0',
+      transform: 'translateX(100px)'
+    }
+    
+    // Apply styles individually
+    Object.assign(saveIndicator.style, styles)
 
     document.body.appendChild(saveIndicator)
 
