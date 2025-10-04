@@ -3,19 +3,20 @@
 ## Prerequisites
 
 1. **Chrome Version**: Ensure you have Chrome 138+ installed
+
    ```bash
    google-chrome --version
    ```
 
 2. **System Requirements**:
    - **OS**: Windows 10/11, macOS 13+, Linux, or ChromeOS
-   - **Storage**: At least 22 GB free space 
+   - **Storage**: At least 22 GB free space
    - **GPU**: More than 4 GB VRAM
    - **Network**: Unlimited/unmetered connection
 
 ## Step 1: Enable Chrome Built-in AI APIs
 
-### For Development/Testing:
+### For Development/Testing
 
 1. **Enable Gemini Nano flag**:
    - Go to `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input`
@@ -27,6 +28,7 @@
    - Check model status and download progress
 
 3. **Test API availability** in DevTools Console:
+
    ```javascript
    // Should return "available", "downloadable", or "downloading"
    await LanguageModel.availability()
@@ -35,7 +37,8 @@
 
 ## Step 2: Test Your Setup
 
-1. **Open the test file**: 
+1. **Open the test file**:
+
    ```bash
    cd /media/theww/AI/Code/AI/Google_Chrome_Built_In
    google-chrome tests/manual/test-chrome-ai.html
@@ -65,27 +68,36 @@
 ## Step 4: Debugging Common Issues
 
 ### Issue: "LanguageModel is not defined"
-**Solution**: 
+
+**Solution**:
+
 - Check Chrome version (need 138+)
 - Verify flag is enabled: `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input`
 - Restart Chrome after enabling
 
 ### Issue: "availability() returns 'unavailable'"
+
 **Solution**:
+
 - Check system requirements (RAM, storage, GPU)
 - Ensure unmetered internet connection
 - Wait for model download (check `chrome://on-device-internals`)
 
 ### Issue: "create() fails with user activation required"
-**Solution**: 
+
+**Solution**:
+
 - API calls must happen after user interaction (click, keypress)
 - In extension context, this is usually satisfied by user clicking extension
 
 ### Issue: Extension service worker errors
+
 **Solution**:
+
 - Check browser console for errors  
 - Verify all imported scripts exist
 - Test API availability in extension context:
+
   ```javascript
   // In service worker
   console.log('LanguageModel available:', 'LanguageModel' in self)
@@ -95,21 +107,27 @@
 ## Step 5: Extension-Specific Considerations
 
 ### Service Worker Context
+
 Chrome Extensions run in a service worker context where:
-- Use `self` instead of `window` 
+
+- Use `self` instead of `window`
 - APIs available as: `LanguageModel`, `Summarizer`, etc.
 - No DOM access (handled by popup/content scripts)
 
 ### Content Scripts Context  
+
 If using AI in content scripts:
+
 - APIs available as `window.LanguageModel`, `window.Summarizer`
 - Can access page DOM for content extraction
 - Must handle cross-origin restrictions
 
 ### Popup/Options Pages Context
+
 In popup HTML pages:
+
 - APIs work like regular web pages
-- Use `window.LanguageModel`, `window.Summarizer` 
+- Use `window.LanguageModel`, `window.Summarizer`
 - Handle async operations with user feedback
 
 ## Step 6: Verify Your Updated Code

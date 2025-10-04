@@ -65,7 +65,9 @@ tests/
 │   └── test-physical-items.js     # Physical items integration tests
 ├── e2e/                          # End-to-end tests (browser automation)
 └── manual/                       # Manual testing tools
-    └── test-chrome-ai.html       # Interactive Chrome AI API tester
+    ├── smartshelf-test-page.html # Extension functionality test page
+    ├── test-chrome-ai.html       # Interactive Chrome AI API tester
+    └── test-popup-connection.html # Service worker communication tester
 ```
 
 ## 🧪 Test Categories
@@ -101,8 +103,8 @@ tests/
 ### Manual Tests (`/manual/`)
 
 - **Purpose**: Interactive testing tools for development and debugging
-- **Scope**: Chrome Built-in AI API setup verification, manual feature testing
-- **Examples**: AI API availability checker, interactive testing interfaces
+- **Scope**: Chrome Built-in AI API setup verification, extension functionality testing, service worker communication
+- **Examples**: Extension test page with structured content, AI API availability checker, popup-service worker communication tester
 
 ## 🚀 Running Tests
 
