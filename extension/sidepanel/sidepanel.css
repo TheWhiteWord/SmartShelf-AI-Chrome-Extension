@@ -35,6 +35,18 @@ body {
     height: 32px;
 }
 
+.header-top .logo-placeholder {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: linear-gradient(135deg, #4285f4, #1a73e8);
+    border-radius: 8px;
+    color: white;
+}
+
 .header-top h1 {
     margin: 0;
     font-size: 20px;

@@ -5,6 +5,11 @@
  * Supports validation, methods, and Chrome Extension integration.
  */
 
+// Prevent duplicate class definition in browser environment
+if (typeof window !== 'undefined' && window.ContentItem) {
+  console.log('ContentItem already defined, skipping redefinition')
+} else {
+
 class ContentItem {
   // Static properties for validation
   static TYPES = ['article', 'video', 'book', 'document', 'image', 'audio']
@@ -305,4 +310,7 @@ if (typeof module !== 'undefined' && module.exports) {
   if (typeof globalThis !== 'undefined') {
     globalThis.ContentItem = ContentItem
   }
+}
+
+// End of guard clause
 }

@@ -4,6 +4,12 @@
  * Collection represents user-defined groups of related content items
  * Enables project-based organization and flexible content grouping
  */
+
+// Prevent duplicate class definition in browser environment
+if (typeof window !== 'undefined' && window.Collection) {
+  console.log('Collection already defined, skipping redefinition')
+} else {
+
 class Collection {
   // Static properties for sorting and privacy options
   static SORT_OPTIONS = ['dateAdded', 'dateModified', 'title', 'relevance']
@@ -723,3 +729,5 @@ if (typeof module !== 'undefined' && module.exports) {
   // Browser environment
   window.Collection = Collection
 }
+
+} // End of guard clause

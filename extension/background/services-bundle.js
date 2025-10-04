@@ -11,6 +11,12 @@
  * Connection Model - Lightweight version for service worker
  * Represents relationships between content items
  */
+
+// Prevent duplicate class definition
+if (typeof self !== 'undefined' && self.Connection) {
+  console.log('Connection already defined in bundle, skipping redefinition')
+} else {
+
 class Connection {
   static TYPES = ['similarity', 'citation', 'topic-related', 'temporal', 'causal']
   static MIN_STRENGTH = 0.0
@@ -348,6 +354,8 @@ self.performanceMonitor = new ServiceWorkerPerformanceMonitor()
 
 // Record initial milestone
 self.performanceMonitor.recordMilestone('Services bundle loaded')
+
+} // End Connection guard
 
 // Export classes for external use
 if (typeof self !== 'undefined') {

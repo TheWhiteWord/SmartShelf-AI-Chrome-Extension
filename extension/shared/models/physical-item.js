@@ -19,6 +19,11 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined') {
   }
 }
 
+// Prevent duplicate class definition in browser environment
+if (typeof window !== 'undefined' && window.PhysicalItem) {
+  console.log('PhysicalItem already defined, skipping redefinition')
+} else {
+
 class PhysicalItem extends ContentItem {
   // Static properties for loan statuses and conditions
   static LOAN_STATUSES = ['available', 'loaned-out', 'borrowed']
@@ -697,3 +702,5 @@ if (typeof module !== 'undefined' && module.exports) {
   // Browser environment
   window.PhysicalItem = PhysicalItem
 }
+
+} // End of guard clause

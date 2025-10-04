@@ -4,6 +4,11 @@
  * Based on specs/001-smartshelf-ai-powered/data-model.md
  */
 
+// Prevent duplicate class definition in browser environment
+if (typeof window !== 'undefined' && window.Connection) {
+  console.log('Connection already defined, skipping redefinition')
+} else {
+
 class Connection {
   // Static properties for connection types and strength constraints
   static TYPES = ['similarity', 'citation', 'topic-related', 'temporal', 'causal']
@@ -350,3 +355,5 @@ if (typeof module !== 'undefined' && module.exports) {
   // Browser environment
   window.Connection = Connection
 }
+
+} // End of guard clause
